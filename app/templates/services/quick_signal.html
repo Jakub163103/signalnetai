@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Signal - SignalNet{% endblock %}
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+<li class="breadcrumb-item active" aria-current="page">Quick Signal</li>
+{% endblock %}
+{% block content %}
+<section class="quick-signal-section">
+    <style>
+        /* Quick Signal Section Styling */
+        .quick-signal-section {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .quick-signal-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .quick-signal-section p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Form Styling */
+        .quick-signal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Submit Button Styling */
+        .btn-submit {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Signal Result Styling */
+        .signal-result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9f7ef;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            color: #155724;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .quick-signal-section {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            .btn-submit {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+
+    <h2>Generate a Quick Signal</h2>
+    <p>Get instant trading signals for your chosen cryptocurrency.</p>
+    <form method="POST" action="{{ url_for('main.quick_signal') }}" class="quick-signal-form">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.cryptocurrency.label(class="form-label") }}
+            {{ form.cryptocurrency(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.timeframe.label(class="form-label") }}
+            {{ form.timeframe(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn-submit") }}
+        </div>
+    </form>
+
+    {% if signal %}
+    <div class="signal-result">
+        <strong>Signal for {{ signal.cryptocurrency }}:</strong>
+        <p>{{ signal.result }}</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

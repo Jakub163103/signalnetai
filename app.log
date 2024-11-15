@@ -1,0 +1,27 @@
+2024-11-14 19:43:56,083 ERROR: Error deleting user 6: (sqlite3.IntegrityError) NOT NULL constraint failed: notification.user_id
+[SQL: UPDATE notification SET user_id=? WHERE notification.id = ?]
+[parameters: (None, 14)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj) [in /Users/jakub/Documents/signalnet/app/routes/admin.py:130]
+2024-11-14 22:42:20,746 ERROR: Stripe Checkout Session creation failed: No API key provided. (HINT: set your API key using "stripe.api_key = <API-KEY>"). You can generate API keys from the Stripe web interface.  See https://stripe.com/api for details, or email support@stripe.com if you have any questions. [in /Users/jakub/Documents/signalnet/app/routes/main.py:407]
+2024-11-14 22:42:23,202 ERROR: Stripe Checkout Session creation failed: No API key provided. (HINT: set your API key using "stripe.api_key = <API-KEY>"). You can generate API keys from the Stripe web interface.  See https://stripe.com/api for details, or email support@stripe.com if you have any questions. [in /Users/jakub/Documents/signalnet/app/routes/main.py:407]
+2024-11-14 22:43:37,462 ERROR: Stripe Checkout Session creation failed: No API key provided. (HINT: set your API key using "stripe.api_key = <API-KEY>"). You can generate API keys from the Stripe web interface.  See https://stripe.com/api for details, or email support@stripe.com if you have any questions. [in /Users/jakub/Documents/signalnet/app/routes/main.py:407]
+2024-11-14 22:44:07,169 ERROR: Stripe Checkout Session creation failed: No API key provided. (HINT: set your API key using "stripe.api_key = <API-KEY>"). You can generate API keys from the Stripe web interface.  See https://stripe.com/api for details, or email support@stripe.com if you have any questions. [in /Users/jakub/Documents/signalnet/app/routes/main.py:407]
+2024-11-14 23:45:08,258 ERROR: Error retrieving Stripe session: (sqlite3.OperationalError) database is locked
+[SQL: UPDATE user SET subscription_id=?, stripe_subscription_id=? WHERE user.id = ?]
+[parameters: ('2', 'sub_1QLBmYIAaVTtgQY4xwLFMvrq', 1)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8) [in /Users/jakub/Documents/signalnet/app/routes/main.py:165]
+2024-11-14 23:46:20,839 ERROR: Error retrieving Stripe session: (sqlite3.OperationalError) database is locked
+[SQL: UPDATE user SET subscription_id=?, stripe_subscription_id=? WHERE user.id = ?]
+[parameters: ('1', 'sub_1QLBnjIAaVTtgQY4TdCr3zaM', 1)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8) [in /Users/jakub/Documents/signalnet/app/routes/main.py:165]
+2024-11-15 01:13:48,050 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:490]
+2024-11-15 01:14:32,444 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:14:33,344 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:14:36,224 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:22:30,247 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:25:10,125 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:28:12,077 ERROR: Error generating signal: generate_signal() takes 0 positional arguments but 2 were given [in /Users/jakub/Documents/signalnet/app/routes/main.py:515]
+2024-11-15 01:32:54,526 ERROR: Error deleting user 6: (sqlite3.IntegrityError) NOT NULL constraint failed: cancellation_feedback.user_id
+[SQL: UPDATE cancellation_feedback SET user_id=? WHERE cancellation_feedback.id = ?]
+[parameters: (None, 1)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj) [in /Users/jakub/Documents/signalnet/app/routes/admin.py:199]

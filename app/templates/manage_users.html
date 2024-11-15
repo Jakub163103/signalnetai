@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - SignalNet{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Manage Users</li>
+{% endblock %}
+
+{% block content %}
+    <h2>Manage Users</h2>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ url_for('admin.manage_users') }}" class="search-form" id="search-form">
+        <input type="text" name="query" placeholder="Search by username or email" value="{{ request.args.get('query', '') }}" class="search-input" id="search-input">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Country</th>
+                <th>Admin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+            {% include 'partials/user_table_rows.html' %}
+        </tbody>
+    </table>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator">Loading...</div>
+
+    <style>
+        /* Styles for the user table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .user-table thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .user-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background-color: #2196F3; /* Blue */
+        }
+
+        .btn-delete {
+            background-color: #f44336; /* Red */
+        }
+
+        .btn-edit:hover {
+            background-color: #0b7dda;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        i.fas {
+            margin-right: 5px;
+        }
+
+        /* Search Form Styling */
+        .search-form {
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+            width: 250px;
+        }
+
+        .search-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .search-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive design for smaller screens */
+        @media screen and (max-width: 600px) {
+            .user-table thead {
+                display: none;
+            }
+
+            .user-table, 
+            .user-table tbody, 
+            .user-table tr, 
+            .user-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .user-table tr {
+                margin-bottom: 15px;
+            }
+
+            .user-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+
+            .user-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 15px;
+                font-weight: bold;
+                text-align: left;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input, .search-button {
+                width: 100%;
+                border-radius: 4px;
+            }
+
+            .search-input {
+                margin-bottom: 10px;
+                border-radius: 4px;
+            }
+
+            .search-button {
+                border-radius: 4px;
+            }
+        }
+
+        /* Styles for loading indicator */
+        #loading-indicator {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const userTableBody = document.getElementById('user-table-body');
+        const searchForm = document.getElementById('search-form');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        let debounceTimeout = null;
+
+        // Listen for input events on the search bar with debouncing
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                const query = searchInput.value.trim();
+                fetchUsers(query);
+            }, 300); // Debounce time in milliseconds
+        });
+
+        // Function to fetch users based on the search query
+        function fetchUsers(query) {
+            // Show the loading indicator
+            loadingIndicator.style.display = 'block';
+
+            fetch(`{{ url_for('admin.search_users') }}?query=${encodeURIComponent(query)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Update the table body with the fetched HTML
+                    userTableBody.innerHTML = html;
+                    // Hide the loading indicator
+                    loadingIndicator.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error fetching users:', error);
+                    // Display an error message in the table
+                    userTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error loading users.</td></tr>`;
+                    // Hide the loading indicator
+                    loadingIndicator.style.display = 'none';
+                });
+        }
+
+        // Prevent the default form submission to avoid page reloads
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+        });
+    });
+</script>
+{% endblock %}

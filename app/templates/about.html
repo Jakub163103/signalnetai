@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - SignalNet{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">About Us</li>
+{% endblock %}
+
+{% block content %}
+<section class="mission-section">
+    <div class="container">
+        <h2>Our Mission</h2>
+        <p>At SignalNet, our mission is to revolutionize the trading landscape by leveraging sophisticated algorithmic strategies and mathematical models. We aim to provide traders with reliable, automated tools that enhance decision-making and optimize trading performance.</p>
+    </div>
+</section>
+
+<section class="technology-section">
+    <div class="container">
+        <h2>Our Technology</h2>
+        <div class="tech-row">
+            <div class="tech-image">
+                <img src="{{ url_for('static', filename='images/stock-market.png') }}" alt="Our Technology" class="img-fluid">
+            </div>
+            <div class="tech-details">
+                <h3>Algorithmic Trading</h3>
+                <p>Our platform utilizes cutting-edge algorithms that analyze market data in real-time, identifying profitable trading opportunities with precision and speed.</p>
+                
+                <h3>Mathematical Models</h3>
+                <p>We integrate advanced mathematical models to predict market trends and assess risks, ensuring that our trading strategies are both robust and adaptable.</p>
+                
+                <h3>Automation</h3>
+                <p>By automating the trading process, we eliminate human error and ensure consistent execution of strategies, allowing traders to focus on strategy optimization and portfolio management.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="team-section">
+    <div class="container">
+        <h2>Meet Our Team</h2>
+        <div class="team-row">
+            <!-- Team Member 1 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/person.png') }}" alt="Jane Doe" class="team-img">
+                <h3>Jane Doe</h3>
+                <p>Chief Technology Officer</p>
+            </div>
+            <!-- Team Member 2 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/person2.png') }}" alt="John Smith" class="team-img">
+                <h3>John Smith</h3>
+                <p>Head of Quantitative Analysis</p>
+            </div>
+            <!-- Team Member 3 -->
+            <div class="team-member">
+                <img src="{{ url_for('static', filename='images/person3.png') }}" alt="Alice Johnson" class="team-img">
+                <h3>Alice Johnson</h3>
+                <p>Lead Algorithm Developer</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container text-center">
+        <h2>Join Us in Transforming the Trading Experience</h2>
+        <p>Discover how our advanced algorithms and mathematical precision can elevate your trading strategy.</p>
+        <a href="{{ url_for('main.subscribe') }}" class="cta-button">Get Started Today</a>
+    </div>
+</section>
+
+<style>
+/* Scoped Styles for About Page */
+
+/* about-hero Section */
+.about-hero {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.about-hero .hero-content h1 {
+    font-size: 48px;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Silkscreen', cursive;
+}
+
+.about-hero .hero-content p {
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.about-hero .hero-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* mission-section */
+.mission-section {
+    padding: 60px 0;
+}
+
+.mission-section h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.mission-section p {
+    font-size: 18px;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* technology-section */
+.technology-section h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.tech-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.tech-image, .tech-details {
+    flex: 1 1 300px;
+}
+
+.tech-details h3 {
+    font-size: 24px;
+    color: #28a745;
+    margin-top: 20px;
+}
+
+.tech-details p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* team-section */
+.team-section h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.team-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+}
+
+.team-member {
+    text-align: center;
+    max-width: 250px;
+}
+
+.team-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 3px solid #28a745;
+}
+
+.team-member h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.team-member p {
+    font-size: 16px;
+    color: #777;
+}
+
+/* values-section */
+.values-section {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+}
+
+.values-section h2 {
+    text-align: center;
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.values-list {
+    list-style: none;
+    padding: 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.values-list li {
+    margin-bottom: 30px;
+}
+
+.values-list h4 {
+    font-size: 24px;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.values-list p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 60px 0;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.cta-section p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.cta-button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #218838;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .tech-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tech-image, .tech-details {
+        flex: 1 1 100%;
+    }
+
+    .team-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .team-member {
+        max-width: 100%;
+    }
+    
+    .values-list li {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

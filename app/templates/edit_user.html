@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - SignalNet{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.manage_users') }}">Manage Users</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit User</li>
+{% endblock %}
+
+{% block content %}
+    <h2>Edit User</h2>
+    <div class="edit-user-form">
+        <form method="POST" action="{{ url_for('admin.edit_user', user_id=user.id) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control") }}
+                {% if form.username.errors %}
+                    <span class="error text-danger">{{ form.username.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+                {% if form.email.errors %}
+                    <span class="error text-danger">{{ form.email.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.country.label(class="form-label") }}
+                {{ form.country(class="form-control", id="country") }}
+                {% if form.country.errors %}
+                    <span class="error text-danger">{{ form.country.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group form-check">
+                {{ form.is_admin(class="form-check-input") }}
+                {{ form.is_admin.label(class="form-check-label") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+        </form>
+    </div>
+
+    <!-- Include Select2 CSS and JS libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        var countries = {{ countries | tojson | safe }};
+        console.log(countries); // Debugging line
+
+        $(document).ready(function() {
+            function formatCountry(country) {
+                if (!country.id) { return country.text; }
+                var countryData = countries.find(c => c.code === country.id);
+                if (!countryData) { return country.text; }
+                return $('<span><img src="' + countryData.flag + '" class="img-flag" /> ' + countryData.name + '</span>');
+            };
+
+            $('#country').select2({
+                templateResult: formatCountry,
+                templateSelection: formatCountry,
+                escapeMarkup: function(markup) { return markup; }  // Let Select2 handle HTML rendering
+            });
+        });
+    </script>
+
+    <style>
+        /* Edit User Form Styling */
+        .edit-user-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+
+        .error.text-danger {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .form-check-input {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .img-flag {
+            width: 20px;
+            height: auto;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .edit-user-form {
+                padding: 15px;
+            }
+
+            .btn-primary {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+
+            .form-label {
+                font-size: 14px;
+            }
+
+            .form-control {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+
+            .btn-primary {
+                padding: 10px 15px;
+                font-size: 16px;
+            }
+        }
+    </style>
+{% endblock %}

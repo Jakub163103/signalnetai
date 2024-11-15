@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}View Logs - SignalNet{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">View Logs</li>
+{% endblock %}
+
+{% block content %}
+    <h2>Application Logs</h2>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ url_for('admin.view_logs') }}" class="search-form" id="search-form">
+        <input type="text" name="query" placeholder="Search logs by message or level" value="{{ request.args.get('query', '') }}" class="search-input" id="search-input">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Message</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="log-table-body">
+            {% include 'partials/log_table_rows.html' %}
+        </tbody>
+    </table>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" style="display: none;">Loading...</div>
+
+    <!-- Optional: Include Select2 CSS and JS if needed -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const logTableBody = document.getElementById('log-table-body');
+            const searchForm = document.getElementById('search-form');
+            const loadingIndicator = document.getElementById('loading-indicator');
+
+            let debounceTimeout = null;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => {
+                    const query = searchInput.value.trim();
+                    loadingIndicator.style.display = 'block';
+
+                    fetch(`{{ url_for('admin.search_logs') }}?query=${encodeURIComponent(query)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            logTableBody.innerHTML = html;
+                            loadingIndicator.style.display = 'none';
+                        })
+                        .catch(error => {
+                            console.error('Error fetching logs:', error);
+                            logTableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error loading logs.</td></tr>`;
+                            loadingIndicator.style.display = 'none';
+                        });
+                }, 300); // Adjust debounce delay as needed
+            });
+
+            // Prevent the default form submission to avoid page reloads
+            searchForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+            });
+        });
+    </script>
+
+    <style>
+        /* Styles for the logs table */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .log-table thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .log-table th,
+        .log-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .log-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .log-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-view,
+        .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .btn-view {
+            background-color: #2196F3; /* Blue */
+        }
+
+        .btn-delete {
+            background-color: #f44336; /* Red */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .log-table th,
+            .log-table td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .search-input {
+                width: 200px;
+            }
+
+            .search-button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .btn-view,
+            .btn-delete {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+
+        /* Styles for loading indicator */
+        #loading-indicator {
+            text-align: center;
+            font-size: 18px;
+            color: #17a2b8;
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}

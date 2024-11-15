@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Help Center - SignalNet{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Help Center</li>
+{% endblock %}
+
+{% block content %}
+<section class="help-center-section">
+    <h2>Help Center</h2>
+    <p>Find answers to your questions and get support here.</p>
+
+    <!-- Frequently Asked Questions -->
+    <section class="faqs">
+        <h3>Frequently Asked Questions</h3>
+        <div class="faq-item">
+            <h4>How do I subscribe to SignalNet?</h4>
+            <p>To subscribe, navigate to the <a href="{{ url_for('main.subscribe') }}">Subscribe</a> page, select your preferred plan, and follow the instructions to complete your subscription.</p>
+        </div>
+        <div class="faq-item">
+            <h4>How can I update my profile information?</h4>
+            <p>You can update your profile by going to the <a href="{{ url_for('main.profile') }}">Profile</a> page and editing your details there.</p>
+        </div>
+        <!-- Add more FAQs as needed -->
+    </section>
+
+    <!-- Contact Support -->
+    <section class="contact-support">
+        <h3>Contact Support</h3>
+        <form method="POST" action="{{ url_for('main.help_center') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="name">Name</label>
+                {{ form.name(class="form-control", id="name", placeholder="Your Name") }}
+                {% if form.name.errors %}
+                    <span class="error text-danger">{{ form.name.errors[0] }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email(class="form-control", id="email", placeholder="Your Email") }}
+                {% if form.email.errors %}
+                    <span class="error text-danger">{{ form.email.errors[0] }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                {{ form.subject(class="form-control", id="subject", placeholder="Subject") }}
+                {% if form.subject.errors %}
+                    <span class="error text-danger">{{ form.subject.errors[0] }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                {{ form.message(class="form-control", id="message", rows="5", placeholder="Your message") }}
+                {% if form.message.errors %}
+                    <span class="error text-danger">{{ form.message.errors[0] }}</span>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+    </section>
+
+    <!-- Support Resources -->
+    <section class="support-resources">
+        <h3>Additional Resources</h3>
+        <ul>
+            <li><a href="{{ url_for('main.privacy') }}">Privacy Policy</a></li>
+            <li><a href="{{ url_for('main.terms_of_service') }}">Terms of Service</a></li>
+            <li><a href="{{ url_for('main.cookie_policy') }}">Cookie Policy</a></li>
+            <li><a href="https://blog.signalet.com">SignalNet Blog</a></li>
+            <!-- Add more resources as needed -->
+        </ul>
+    </section>
+</section>
+
+<style>
+    /* Help Center Section Styling */
+    .help-center-section {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    .help-center-section h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333333;
+    }
+
+    /* FAQs Styling */
+    .faqs {
+        margin-bottom: 40px;
+    }
+
+    .faqs h3 {
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    .faq-item {
+        margin-bottom: 20px;
+    }
+
+    .faq-item h4 {
+        font-size: 18px;
+        color: #333333;
+        cursor: pointer;
+    }
+
+    .faq-item p {
+        display: none;
+        padding-left: 20px;
+        color: #555555;
+    }
+
+    /* Contact Support Styling */
+    .contact-support {
+        margin-bottom: 40px;
+    }
+
+    .contact-support h3 {
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    .contact-support .form-group {
+        margin-bottom: 15px;
+    }
+
+    .contact-support label {
+        font-weight: bold;
+        color: #333333;
+    }
+
+    .contact-support .form-control {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        transition: border-color 0.3s ease;
+    }
+
+    .contact-support .form-control:focus {
+        border-color: #28a745;
+        outline: none;
+    }
+
+    .contact-support .btn-primary {
+        background-color: #28a745;
+        color: #ffffff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .contact-support .btn-primary:hover {
+        background-color: #218838;
+    }
+
+    /* Support Resources Styling */
+    .support-resources {
+        margin-bottom: 40px;
+    }
+
+    .support-resources h3 {
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    .support-resources ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .support-resources li {
+        margin-bottom: 10px;
+    }
+
+    .support-resources a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .support-resources a:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .help-center-section {
+            padding: 15px;
+        }
+
+        .contact-support .btn-primary {
+            width: 100%;
+            padding: 12px;
+        }
+    }
+</style>
+
+<!-- JavaScript to Toggle FAQ Answers -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const faqItems = document.querySelectorAll('.faq-item h4');
+        faqItems.forEach(function(faq) {
+            faq.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                if (answer.style.display === 'block') {
+                    answer.style.display = 'none';
+                } else {
+                    answer.style.display = 'block';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

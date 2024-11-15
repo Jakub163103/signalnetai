@@ -1,0 +1,685 @@
+{% extends "base.html" %}
+
+{% block title %}Subscribe - SignalNet{% endblock %}
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Subscribe</li>
+{% endblock %}
+{% block content %}
+    <!-- Flash Messages are handled in base.html -->
+
+    <!-- Scoped Styles for Subscribe Page -->
+    <style>
+        /* Subscribe Page Container */
+        .subscribe-page {
+            font-family: 'Silkscreen', sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 20px;
+        }
+        
+        /* Professional Info Section */
+        .subscribe-page .professional-info {
+            background-color: #f0f4f8;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+        
+        .subscribe-page .professional-info h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        
+        .subscribe-page .professional-info p {
+            font-size: 18px;
+            color: #555555;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Features Section */
+        .subscribe-page .features {
+            background-color: #ffffff;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+        
+        .subscribe-page .features h2 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #333333;
+        }
+        
+        .subscribe-page .features-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 0;
+        }
+        
+        .subscribe-page .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #555555;
+            max-width: 800px;
+            text-align: left;
+        }
+        
+        .subscribe-page .features-list li i {
+            margin-right: 10px;
+            color: #28a745;
+        }
+        
+        /* Security Section */
+        .subscribe-page .security {
+            background-color: #f0f4f8;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+        
+        .subscribe-page .security h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        
+        .subscribe-page .security p {
+            font-size: 18px;
+            color: #555555;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            line-height: 1.6;
+        }
+        
+        .subscribe-page .security ul {
+            list-style: disc inside;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        
+        .subscribe-page .security ul li {
+            font-size: 18px;
+            color: #555555;
+            margin-bottom: 10px;
+        }
+        
+        /* Legal Section */
+        .subscribe-page .legal {
+            background-color: #ffffff;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+        
+        .subscribe-page .legal h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        
+        .subscribe-page .legal p {
+            font-size: 18px;
+            color: #555555;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            line-height: 1.6;
+        }
+        
+        .subscribe-page .legal ul {
+            list-style: none;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .subscribe-page .legal ul li {
+            margin-bottom: 10px;
+        }
+        
+        .subscribe-page .legal ul li a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .subscribe-page .legal ul li a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Financial Disclaimer Section */
+        .subscribe-page .financial-disclaimer {
+            background-color: #fff3cd;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+            border-left: 6px solid #ffeeba;
+        }
+        
+        .subscribe-page .financial-disclaimer h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .subscribe-page .financial-disclaimer p {
+            font-size: 18px;
+            color: #856404;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Testimonials Section */
+        .subscribe-page .testimonials {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 5px;
+        }
+        
+        .subscribe-page .testimonials h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .subscribe-page .testimonial {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            font-style: italic;
+            color: #555;
+        }
+        
+        .subscribe-page .testimonial span {
+            display: block;
+            text-align: right;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Call-to-Action Section */
+        .subscribe-page .call-to-action {
+            background-color: #f0f4f8;
+            padding: 60px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .subscribe-page .call-to-action h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        
+        .subscribe-page .call-to-action p {
+            font-size: 20px;
+            color: #555555;
+            margin-bottom: 30px;
+        }
+        
+        .subscribe-page .call-to-action .cta-button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .subscribe-page .call-to-action .cta-button:hover {
+            background-color: #218838;
+        }
+        
+        /* Responsive Styles for Subscribe Page */
+        @media (max-width: 768px) {
+            .subscribe-page .features-list {
+                align-items: flex-start;
+            }
+        
+            .subscribe-page .features-list li {
+                max-width: 100%;
+            }
+        
+            .subscribe-page .security ul {
+                padding-left: 20px;
+            }
+        }
+        /* Financial Disclaimer Styling */
+        .financial-disclaimer-popup {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px;
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+}
+
+.financial-disclaimer-popup .popup-content {
+    background-color: #333;
+    padding: 10px 20px; /* Reduced padding */
+    border-radius: 8px;
+    position: relative;
+    max-width: 80%; /* Increased max-width from 600px to 80% */
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%; /* Ensure popup content fills the popup height */
+}
+
+.financial-disclaimer-popup .close-button {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: #fff;
+    font-size: 18px; /* Reduced font size */
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+.financial-disclaimer-popup .close-button:hover {
+    color: #ffdddd;
+}
+.financial-disclaimer-popup h2 {
+    font-size: 16px; /* Reduced font size */
+    margin-bottom: 5px;
+}
+
+.financial-disclaimer-popup p {
+    font-size: 12px; /* Reduced font size */
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .financial-disclaimer-popup {
+        height: 15vh; /* Slightly larger for small screens */
+    }
+
+    .financial-disclaimer-popup .popup-content {
+        padding: 8px 15px;
+        max-width: 90%;
+    }
+
+    .financial-disclaimer-popup h2 {
+        font-size: 14px;
+    }
+
+    .financial-disclaimer-popup p {
+        font-size: 11px;
+    }
+}
+
+        /* One-Time Purchase Section Styles */
+        .one-time-purchase-section {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .one-time-purchase-section h2 {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: #333333;
+            text-align: center;
+        }
+
+        .one-time-plans {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .one-time-plan {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            width: 220px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .one-time-plan:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+
+        .one-time-plan h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+
+        .one-time-plan .price {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .one-time-plan .purchase-button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .one-time-plan .purchase-button:hover {
+            background-color: #218838;
+        }
+
+        .savings-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        /* Responsive Styles for One-Time Purchase Section */
+        @media (max-width: 768px) {
+            .one-time-plans {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .one-time-plan {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+
+    <!-- Subscribe Page Content Wrapped in Unique Container -->
+    <div class="subscribe-page">
+        <section>
+            <h2>Choose Your Plan</h2>
+            <form method="POST" id="subscribe-form">
+                {{ form.hidden_tag() }}
+                <div class="plans">
+                    {% for subscription in subscriptions %}
+                    <div class="plan {% if current_user.subscription_id == subscription.id %}current-plan{% endif %} {% if subscription.name == 'Pro' %}most-popular{% endif %}">
+                        <h3>
+                            {{ subscription.name }}
+                            {% if subscription.name == 'Pro' %}
+                                <span class="best-value-text">Best Value</span>
+                            {% endif %}
+                        </h3>
+                        <p class="price">
+                            {% if subscription.name == 'Pro' %}
+                                <span class="original-price">$29.99</span> ${{ subscription.price }}/month
+                            {% else %}
+                                ${{ subscription.price }}/month
+                            {% endif %}
+                        </p>
+                        <ul>
+                            {% for feature in subscription.features.split(',') %}
+                            <li><i class="fas fa-check-circle"></i> {{ feature }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if current_user.subscription_id == subscription.id %}
+                            <button type="button" class="subscribe-button current-plan-button" disabled>
+                                Current Plan
+                            </button>
+                        {% else %}
+                            <button type="submit" class="subscribe-button subscribe-button-{{ subscription.id }}" name="subscription" value="{{ subscription.name }}">
+                                Subscribe
+                            </button>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="loading" style="display:none;">
+                    <p>Processing your subscription...</p>
+                </div>
+            </form>
+        </section>
+
+        <!-- One-Time Purchase Section -->
+        <section class="one-time-purchase-section">
+            <h2>Buy Signals</h2>
+            <form method="POST" id="one-time-purchase-form">
+                {{ form.hidden_tag() }}
+                <div class="one-time-plans">
+                    <div class="one-time-plan">
+                        <h3>Starter Pack</h3>
+                        <p class="price">$1.00 for 10 Signals</p>
+                        <button type="submit" class="purchase-button" name="signal_quantity" value="10">
+                            Buy Now
+                        </button>
+                    </div>
+                    <div class="one-time-plan">
+                        <h3>Growth Pack</h3>
+                        <p class="price">$4.50 for 50 Signals</p>
+                        <button type="submit" class="purchase-button" name="signal_quantity" value="50">
+                            Buy Now
+                        </button>
+                    </div>
+                    <div class="one-time-plan">
+                        <h3>Advanced Pack</h3>
+                        <p class="price">$8.00 for 100 Signals</p>
+                        <button type="submit" class="purchase-button" name="signal_quantity" value="100">
+                            Buy Now
+                        </button>
+                    </div>
+                    <div class="one-time-plan">
+                        <h3>Premium Pack</h3>
+                        <p class="price">$15.00 for 200 Signals</p>
+                        <button type="submit" class="purchase-button" name="signal_quantity" value="200">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+                <div id="loading-one-time" style="display:none;">
+                    <p>Processing your purchase...</p>
+                </div>
+            </form>
+            <p class="savings-info">* Subscriptions offer better value and unlimited signals. Consider subscribing for ongoing access.</p>
+        </section>
+
+        <!-- New Professional Information Sections Below Subscription Plans -->
+
+        <section class="professional-info">
+            <h2>Why Choose SignalNet?</h2>
+            <p>At SignalNet, we are committed to providing top-tier trading signals and market analysis to empower your investment decisions. Our subscription plans are designed to cater to both novice and professional traders, ensuring you have the tools and insights needed to succeed in the dynamic world of trading.</p>
+        </section>
+
+        <section class="features">
+            <h2>Our Features</h2>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i>Real-Time Signals: Stay ahead with up-to-the-minute trading signals.</li>
+                <li><i class="fas fa-check-circle"></i>Comprehensive Analysis: Detailed trend analyses and moving averages to guide your strategies.</li>
+                <li><i class="fas fa-check-circle"></i>Secure Transactions: Your data and payments are protected with industry-standard security protocols.</li>
+                <li><i class="fas fa-check-circle"></i>24/7 Support: Our dedicated support team is available around the clock to assist you.</li>
+                <li><i class="fas fa-check-circle"></i>Flexible Plans: Choose a subscription that aligns with your trading frequency and investment goals.</li>
+            </ul>
+        </section>
+
+        <section class="security">
+            <h2>Security You Can Trust</h2>
+            <p>Your security is paramount to us. SignalNet employs robust security measures to safeguard your personal information and financial transactions:</p>
+            <ul>
+                <li><strong>Data Encryption:</strong> All sensitive data is encrypted using advanced encryption standards to prevent unauthorized access.</li>
+                <li><strong>Secure Payment Gateways:</strong> We integrate with trusted payment providers, ensuring your financial information is handled securely.</li>
+                <li><strong>Regular Security Audits:</strong> Continuous monitoring and regular security audits help us identify and mitigate potential vulnerabilities.</li>
+                <li><strong>Compliance:</strong> We adhere to all relevant industry standards and regulations to maintain the highest level of security.</li>
+            </ul>
+        </section>
+
+        <section class="legal">
+            <h2>Terms and Conditions</h2>
+            <p>By subscribing to SignalNet, you agree to our comprehensive terms and conditions. Please read them carefully to understand your rights and obligations:</p>
+            <ul>
+                <li><a href="{{ url_for('main.terms_of_service') }}">Read our Terms of Service</a></li>
+                <li><a href="{{ url_for('main.privacy') }}">Review our Privacy Policy</a></li>
+                <li><a href="{{ url_for('main.cookie_policy') }}">Understand our Cookie Policy</a></li>
+            </ul>
+            <p>Ensure you fully comprehend all terms before proceeding with your subscription to make informed decisions.</p>
+        </section>
+
+        <!-- Financial Disclaimer Popup -->
+        <div id="financial-disclaimer-popup" class="financial-disclaimer-popup">
+            <div class="popup-content">
+                <span class="close-button">&times;</span>
+        <h2>Financial Disclaimer</h2>
+        <p>
+            All financial market signals provided by SignalNet are for informational purposes only and do not constitute financial, investment, or trading advice.
+            Trading involves significant risk, including the potential loss of your entire investment. Always consult with a qualified financial advisor before making any financial decisions.
+        </p>
+            </div>
+        </div>
+
+        <section class="testimonials">
+            <h2>What Our Subscribers Say</h2>
+            <div class="testimonial">
+                "SignalNet has transformed my trading strategy. The real-time signals are incredibly accurate and have significantly boosted my trading performance."
+                <span>- Alex T., Professional Trader</span>
+            </div>
+            <div class="testimonial">
+                "The comprehensive analysis and 24/7 support make SignalNet a reliable partner in my trading journey."
+                <span>- Maria K., Investment Analyst</span>
+            </div>
+        </section>
+
+        <section class="call-to-action">
+            <h2>Ready to Elevate Your Trading?</h2>
+            <p>Join thousands of satisfied traders who trust SignalNet for reliable market insights and signals.</p>
+            <a href="{{ url_for('main.subscribe') }}" class="cta-button">Choose Your Plan Now</a>
+        </section>
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script> <!-- Ensure Stripe.js is loaded -->
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stripe = Stripe('{{ stripe_public_key }}'); // Use the passed Stripe publishable key
+
+        const subscribeForm = document.getElementById('subscribe-form');
+
+        subscribeForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Use the submitter property to identify which button was clicked
+            const submitter = e.submitter;
+            const selectedPlan = submitter.value;
+
+            if (!selectedPlan) {
+                alert('Please select a subscription plan.');
+                return;
+            }
+
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'block';
+
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}' // Ensure CSRF token is included
+                },
+                body: JSON.stringify({ subscription: selectedPlan })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(session) {
+                if (session.error) {
+                    throw new Error(session.error);
+                }
+                // Redirect to Stripe Checkout
+                window.location.href = session.url;
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+                document.getElementById('loading').style.display = 'none';
+            });
+        });
+
+        const purchaseForm = document.getElementById('one-time-purchase-form');
+
+        purchaseForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(purchaseForm);
+            const signalQuantity = formData.get('signal_quantity');
+
+            if (!signalQuantity) {
+                alert('Please select a signal package.');
+                return;
+            }
+
+            // Show loading indicator
+            document.getElementById('loading-one-time').style.display = 'block';
+
+            fetch('/buy-signals', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}' // Ensure CSRF token is included
+                },
+                body: JSON.stringify({ signal_quantity: signalQuantity })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(session) {
+                if (session.error) {
+                    throw new Error(session.error);
+                }
+                // Redirect to Stripe Checkout
+                window.location.href = session.url;
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+                document.getElementById('loading-one-time').style.display = 'none';
+            });
+        });
+
+        const disclaimerPopup = document.getElementById('financial-disclaimer-popup');
+        const closeButton = disclaimerPopup.querySelector('.close-button');
+
+        // Show the popup when the page loads
+        disclaimerPopup.style.display = 'flex';
+
+        // Close the popup when the close button is clicked
+        closeButton.addEventListener('click', function() {
+            disclaimerPopup.style.display = 'none';
+        });
+
+        // Optional: Close the popup when clicking outside the popup content
+        window.addEventListener('click', function(event) {
+            if (event.target === disclaimerPopup) {
+                disclaimerPopup.style.display = 'none';
+            }
+        });
+    });
+    </script>
+{% endblock %} 
