@@ -8,10 +8,7 @@ import os
 from app.utils import load_countries
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(message="Username is required."),
-        Length(min=3, max=150, message='Username must be between 3 and 150 characters.')
-    ])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[
         DataRequired(message="Password is required.")
     ])
@@ -19,10 +16,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class SignupForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(message="Username is required."),
-        Length(min=3, max=150, message='Username must be between 3 and 150 characters.')
-    ])
     email = StringField('Email', validators=[
         DataRequired(message="Email is required."),
         Email(message="Invalid email address.")
@@ -30,10 +23,6 @@ class SignupForm(FlaskForm):
     password = PasswordField('Password', validators=[
         DataRequired(message="Password is required."),
         Length(min=6, message="Password must be at least 6 characters long.")
-    ])
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(message="Please confirm your password."),
-        EqualTo('password', message="Passwords must match.")
     ])
     country = SelectField('Country', choices=[], validators=[DataRequired()])
     tos = BooleanField('I accept the Terms of Service', validators=[
@@ -58,10 +47,6 @@ class SignupForm(FlaskForm):
             self.country.choices = []
             print(f"Error loading countries: {e}")
 
-    def validate_username(self, username):
-        if User.query.filter_by(username=username.data).first():
-            raise ValidationError('That username is already taken. Please choose a different one.')
-
     def validate_email(self, email):
         if User.query.filter_by(email=email.data).first():
             raise ValidationError('That email is already in use. Please choose a different one.')
@@ -83,10 +68,6 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Update Password')
 
 class UpdateProfileForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(message="Username is required."),
-        Length(min=3, max=150, message='Username must be between 3 and 150 characters.')
-    ])
     email = StringField('Email', validators=[
         DataRequired(message="Email is required."),
         Email(message="Invalid email address.")
@@ -102,7 +83,6 @@ class UpdateProfileForm(FlaskForm):
     submit = SubmitField('Update Profile')
 
 class AccountSettingsForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('New Password (leave blank to keep current password)', validators=[
         Optional(),
@@ -113,12 +93,6 @@ class AccountSettingsForm(FlaskForm):
         Optional()
     ])
     submit = SubmitField('Update Account')
-
-    def validate_username(self, username):
-        if username.data != current_user.username:
-            user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError('That username is already taken. Please choose a different one.')
 
     def validate_email(self, email):
         if email.data != current_user.email:
@@ -157,11 +131,6 @@ class PrivacySettingsForm(FlaskForm):
     def validate_allow_profile_visibility(self, field):
         pass
 
-class AdminNotificationForm(FlaskForm):
-    topic = StringField('Notification Topic', validators=[DataRequired(), Length(max=100)])
-    message = TextAreaField('Notification Message', validators=[DataRequired()])
-    submit = SubmitField('Send Notification')
-
 class ContactForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=50)])
     email = StringField('Email', validators=[DataRequired(), Email(), Length(max=120)])
@@ -170,7 +139,6 @@ class ContactForm(FlaskForm):
     submit = SubmitField('Send Message')
 
 class EditUserForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     country = SelectField('Country', choices=[], validators=[DataRequired()])
     is_admin = BooleanField('Admin')
@@ -229,3 +197,16 @@ class QuickSignalForm(FlaskForm):
         validators=[DataRequired()]
     )
     submit = SubmitField('Generate Signal')
+
+class OneTimePurchaseForm(FlaskForm):
+    signal_quantity = SelectField(
+        'Quantity',
+        choices=[
+            ('10', '10 Signals'),
+            ('50', '50 Signals'),
+            ('100', '100 Signals'),
+            ('200', '200 Signals')
+        ],
+        validators=[DataRequired()]
+    )
+    submit = SubmitField('Buy Now')

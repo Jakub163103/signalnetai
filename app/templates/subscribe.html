@@ -331,21 +331,21 @@
 }
 
         /* One-Time Purchase Section Styles */
-        .one-time-purchase-section {
+        .subscribe-page .one-time-purchase-section {
             background-color: #ffffff;
             padding: 10px 20px;
             border-radius: 8px;
             margin: 10px 0;
         }
 
-        .one-time-purchase-section h2 {
+        .subscribe-page .one-time-purchase-section h2 {
             font-size: 32px;
             margin-bottom: 30px;
             color: #333333;
             text-align: center;
         }
 
-        .one-time-plans {
+        .subscribe-page .one-time-plans {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
@@ -353,7 +353,7 @@
             margin-top: 20px;
         }
 
-        .one-time-plan {
+        .subscribe-page .one-time-plan {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
@@ -363,24 +363,32 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .one-time-plan:hover {
+        .subscribe-page .one-time-plan:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 12px rgba(0,0,0,0.2);
         }
 
-        .one-time-plan h3 {
+        .subscribe-page .one-time-plan h3 {
             font-size: 20px;
             margin-bottom: 10px;
             color: #343a40;
         }
 
-        .one-time-plan .price {
+        .subscribe-page .one-time-plan .price {
             font-size: 18px;
             color: #495057;
             margin-bottom: 15px;
         }
 
-        .one-time-plan .purchase-button {
+        .subscribe-page .one-time-plan .model-select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .subscribe-page .one-time-plan .purchase-button {
             background-color: #28a745;
             color: #fff;
             padding: 10px 20px;
@@ -389,13 +397,14 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            width: 100%;
         }
 
-        .one-time-plan .purchase-button:hover {
+        .subscribe-page .one-time-plan .purchase-button:hover {
             background-color: #218838;
         }
 
-        .savings-info {
+        .subscribe-page .savings-info {
             margin-top: 15px;
             font-size: 14px;
             color: #6c757d;
@@ -404,14 +413,133 @@
 
         /* Responsive Styles for One-Time Purchase Section */
         @media (max-width: 768px) {
-            .one-time-plans {
+            .subscribe-page .one-time-plans {
                 flex-direction: column;
                 align-items: center;
             }
 
-            .one-time-plan {
+            .subscribe-page .one-time-plan {
                 width: 100%;
                 max-width: 300px;
+            }
+        }
+
+        /* Quick Entrance Section Styling */
+        .quick-entrance {
+            background-color: #f0f4f8;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin: 40px 0;
+        }
+
+        .technology-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .technology-text {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .technology-text h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #333333;
+        }
+
+        .technology-text p {
+            font-size: 18px;
+            color: #555555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* Enhanced Button Styling */
+        .technology-link {
+            display: inline-block;
+            background-color: #28a745;
+            color: #fff;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .technology-link:hover,
+        .technology-link:focus {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            color: #fff; /* Override global a:hover color */
+            text-decoration: none; /* Remove underline from global a:hover */
+        }
+
+        .technology-link:active {
+            background-color: #1e7e34;
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .technology-link:focus {
+            outline: 2px solid #005f3a;
+            outline-offset: 2px;
+        }
+
+        .technology-image {
+            flex: 1;
+            padding-left: 20px;
+            text-align: center;
+        }
+
+        .entrance-image {
+            max-width: 70%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .technology-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .technology-text, .technology-image {
+                padding: 0;
+            }
+
+            .technology-text {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .technology-link {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .technology-text h3 {
+                font-size: 24px;
+            }
+
+            .technology-text p {
+                font-size: 16px;
+            }
+
+            .technology-link {
+                font-size: 14px;
+                padding: 10px 20px;
             }
         }
     </style>
@@ -464,50 +592,54 @@
         <!-- One-Time Purchase Section -->
         <section class="one-time-purchase-section">
             <h2>Buy Signals</h2>
-            <form method="POST" id="one-time-purchase-form">
-                {{ form.hidden_tag() }}
-                <div class="one-time-plans">
-                    <div class="one-time-plan">
-                        <h3>Starter Pack</h3>
-                        <p class="price">$1.00 for 10 Signals</p>
-                        <button type="submit" class="purchase-button" name="signal_quantity" value="10">
-                            Buy Now
-                        </button>
-                    </div>
-                    <div class="one-time-plan">
-                        <h3>Growth Pack</h3>
-                        <p class="price">$4.50 for 50 Signals</p>
-                        <button type="submit" class="purchase-button" name="signal_quantity" value="50">
-                            Buy Now
-                        </button>
-                    </div>
-                    <div class="one-time-plan">
-                        <h3>Advanced Pack</h3>
-                        <p class="price">$8.00 for 100 Signals</p>
-                        <button type="submit" class="purchase-button" name="signal_quantity" value="100">
-                            Buy Now
-                        </button>
-                    </div>
-                    <div class="one-time-plan">
-                        <h3>Premium Pack</h3>
-                        <p class="price">$15.00 for 200 Signals</p>
-                        <button type="submit" class="purchase-button" name="signal_quantity" value="200">
-                            Buy Now
-                        </button>
-                    </div>
+            <div class="one-time-plans">
+                {% for plan in one_time_plans %}
+                <div class="one-time-plan">
+                    <h3>{{ plan.name }}</h3>
+                    <p class="price" data-base-price="{{ plan.base_price }}" data-signals="{{ plan.signals }}">
+                        ${{ '%.2f'|format(plan.base_price) }} for {{ plan.signals }} Signals
+                    </p>
+                    <form method="POST" class="buy-one-time-form" data-plan-id="{{ plan.id }}">
+                        {{ one_time_purchase_form.hidden_tag() }}
+                        <div class="form-group">
+                            <label for="model_{{ plan.id }}">Choose Model:</label>
+                            <select name="model_{{ plan.id }}" id="model_{{ plan.id }}" class="model-select" data-plan-id="{{ plan.id }}">
+                                {% for model in plan.models %}
+                                <option value="{{ model.id }}" data-cost-per-signal="{{ model.cost_per_signal }}">
+                                    {{ model.name }} {% if model.cost_per_signal > 0 %}+ ${{ '%.2f'|format(model.cost_per_signal) }}/signal{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="purchase-button">Buy Now</button>
+                        <div class="loading-one-time" style="display:none;">
+                            <p>Processing your purchase...</p>
+                        </div>
+                    </form>
                 </div>
-                <div id="loading-one-time" style="display:none;">
-                    <p>Processing your purchase...</p>
-                </div>
-            </form>
+                {% endfor %}
+            </div>
             <p class="savings-info">* Subscriptions offer better value and unlimited signals. Consider subscribing for ongoing access.</p>
+            <p class="savings-info">* For one-time purchases, you can choose different analysis models which may affect the final price.</p>
         </section>
 
         <!-- New Professional Information Sections Below Subscription Plans -->
 
-        <section class="professional-info">
-            <h2>Why Choose SignalNet?</h2>
-            <p>At SignalNet, we are committed to providing top-tier trading signals and market analysis to empower your investment decisions. Our subscription plans are designed to cater to both novice and professional traders, ensuring you have the tools and insights needed to succeed in the dynamic world of trading.</p>
+        <!-- Quick Entrance Section -->
+        <section class="quick-entrance">
+            <div class="technology-container">
+                <div class="technology-text">
+                    <h3>Discover Our Technology</h3>
+                    <p>
+                        Learn how our advanced trading algorithms and machine learning models work together to provide you with accurate and reliable market signals. 
+                        Our technology is designed to give you a competitive edge in the financial markets.
+                    </p>
+                    <a href="{{ url_for('main.technology') }}" class="technology-link" role="button">Learn More About Our Technology</a>
+                </div>
+                <div class="technology-image">
+                    <img src="{{ url_for('static', filename='images/web.png') }}" alt="Our Trading Technology" class="entrance-image" loading="lazy">
+                </div>
+            </div>
         </section>
 
         <section class="features">
@@ -580,6 +712,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const stripe = Stripe('{{ stripe_public_key }}'); // Use the passed Stripe publishable key
 
+        // Handle subscription form submission
         const subscribeForm = document.getElementById('subscribe-form');
 
         subscribeForm.addEventListener('submit', function(e) {
@@ -622,63 +755,107 @@
             });
         });
 
-        const purchaseForm = document.getElementById('one-time-purchase-form');
+        // Handle one-time purchase form submissions
+        const oneTimePurchaseForms = document.querySelectorAll('.buy-one-time-form');
 
-        purchaseForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent the default form submission
+        oneTimePurchaseForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const loadingIndicator = form.querySelector('.loading-one-time');
+                const modelSelect = form.querySelector('.model-select');
+                const planId = form.getAttribute('data-plan-id');
+                const selectedModelId = modelSelect.value;
 
-            const formData = new FormData(purchaseForm);
-            const signalQuantity = formData.get('signal_quantity');
-
-            if (!signalQuantity) {
-                alert('Please select a signal package.');
-                return;
-            }
-
-            // Show loading indicator
-            document.getElementById('loading-one-time').style.display = 'block';
-
-            fetch('/buy-signals', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token() }}' // Ensure CSRF token is included
-                },
-                body: JSON.stringify({ signal_quantity: signalQuantity })
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(session) {
-                if (session.error) {
-                    throw new Error(session.error);
+                if (!selectedModelId) {
+                    alert('Please select an analysis model.');
+                    return;
                 }
-                // Redirect to Stripe Checkout
-                window.location.href = session.url;
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert('An unexpected error occurred.');
-                document.getElementById('loading-one-time').style.display = 'none';
+
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+
+                // Prepare data to send
+                const data = {
+                    selected_models: {
+                        [planId]: selectedModelId
+                    }
+                };
+
+                fetch('/buy-signals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingIndicator.style.display = 'none';
+                    alert('An unexpected error occurred.');
+                });
             });
         });
 
+        // Financial Disclaimer Popup Logic
         const disclaimerPopup = document.getElementById('financial-disclaimer-popup');
-        const closeButton = disclaimerPopup.querySelector('.close-button');
+        if (disclaimerPopup) {
+            const closeButton = disclaimerPopup.querySelector('.close-button');
 
-        // Show the popup when the page loads
-        disclaimerPopup.style.display = 'flex';
+            // Show the popup when the page loads
+            disclaimerPopup.style.display = 'flex';
 
-        // Close the popup when the close button is clicked
-        closeButton.addEventListener('click', function() {
-            disclaimerPopup.style.display = 'none';
-        });
-
-        // Optional: Close the popup when clicking outside the popup content
-        window.addEventListener('click', function(event) {
-            if (event.target === disclaimerPopup) {
+            // Close the popup when the close button is clicked
+            closeButton.addEventListener('click', function() {
                 disclaimerPopup.style.display = 'none';
+            });
+
+            // Optional: Close the popup when clicking outside the popup content
+            window.addEventListener('click', function(event) {
+                if (event.target === disclaimerPopup) {
+                    disclaimerPopup.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle dynamic price updates based on model selection
+        const modelSelects = document.querySelectorAll('.model-select');
+
+        function updatePrices(modelSelectElement) {
+            const planElement = modelSelectElement.closest('.one-time-plan');
+            const basePriceElement = planElement.querySelector('.price');
+            const basePrice = parseFloat(basePriceElement.getAttribute('data-base-price'));
+            const signals = parseInt(basePriceElement.getAttribute('data-signals'));
+            const selectedModel = modelSelectElement.selectedOptions[0];
+            const costPerSignal = parseFloat(selectedModel.getAttribute('data-cost-per-signal'));
+
+            if (isNaN(basePrice) || isNaN(signals) || isNaN(costPerSignal)) {
+                console.error('Invalid data for price calculation.');
+                return;
             }
+
+            const additionalCost = signals * costPerSignal;
+            const newPrice = basePrice + additionalCost;
+            basePriceElement.textContent = `$${newPrice.toFixed(2)} for ${signals} Signals`;
+        }
+
+        // Initial price update
+        modelSelects.forEach(select => updatePrices(select));
+
+        // Event listeners for model selection changes
+        modelSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                updatePrices(this);
+            });
         });
     });
     </script>

@@ -1,98 +1,472 @@
 {% extends "base.html" %}
 
+{% block header %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap');
+/* General styles for the page */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    overflow: hidden;
+    background: linear-gradient(45deg, #6a11cb, #2575fc); /* Initial gradient */
+    background-size: 400% 400%; /* For animation */
+    animation: gradientAnimation 15s ease infinite; /* Animation */
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.signup-page {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Full viewport height */
+    margin: 20px 0; /* Add margin to the top and bottom */
+}
+
+.form-container {
+    z-index: 10;
+    background-color: #ffffff; /* White background for the form */
+    padding: 20px; /* Padding for the form */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 100%;
+    max-width: 400px; /* Max width for the form */
+    max-height: 80vh; /* Set a maximum height for the form container */
+    overflow-y: auto; /* Allow vertical scrolling if content overflows */
+    margin: -50px 0 20px 0; /* Move the form higher by using negative margin */
+}
+
+h2 {
+    text-align: center; /* Center the heading */
+    margin-bottom: 0px; /* Space below the heading */
+    margin-top: 0px;
+    font-family: 'Montserrat', sans-serif; /* Heading font */
+}
+
+.form-group {
+    margin-bottom: 0px; /* Space between form groups */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-check {
+    margin: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    appearance: none; /* Remove default styling */
+    width: 16px; /* Set a smaller width */
+    height: 16px; /* Set a smaller height */
+    background-color: #f0f0f0; /* Background color */
+    border: 2px solid #ccc; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form-check-input:checked {
+    background-color: #28a745; /* Background color when checked */
+    border-color: #28a745; /* Border color when checked */
+}
+
+.btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.social-signup {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.social-button {
+    margin: 5px;
+}
+
+.social-button.google {
+    background-color: #ffffff; /* White background */
+    color: #4285F4; /* Google blue */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for the button */
+    font-size: 16px; /* Font size */
+    font-weight: bold; /* Bold text */
+    display: flex; /* Flexbox for icon and text */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.social-button.google:hover {
+    background-color: #f1f1f1; /* Light gray background on hover */
+}
+
+.google-icon {
+    width: 20px; /* Width of the Google icon */
+    height: 20px; /* Height of the Google icon */
+    margin-right: 10px; /* Space between the icon and text */
+}
+
+.form-label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 200;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    outline: none;
+}
+
+.error.text-danger {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+    display: block;
+}
+
+.img-flag {
+    width: 20px;
+    height: auto;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.background-image {
+    position: absolute; /* Absolute positioning for free placement */
+    width: 100px; /* Fixed width */
+    height: 100px; /* Fixed height */
+    opacity: 0.5; /* Adjust opacity as needed */
+    pointer-events: none; /* Prevent interaction */
+    z-index: 1;
+}
+
+span.required {
+    color: red;
+}
+
+/* Success Container Styles */
+.success-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: auto; /* Allow height to adjust based on content */
+    width: 300px; /* Set a fixed width for the rectangle */
+    padding: 20px; /* Add padding for spacing */
+    background-color: #f0fff0; /* Light green background */
+    border: 2px solid #28a745; /* Green border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin: 0 auto; /* Center the container */
+}
+
+.success-container img {
+    width: 100px; /* Adjust the size as needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px;
+}
+
+.success-container p {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.success-container button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.success-container button:hover {
+    background-color: #218838;
+}
+</style>
+{% endblock %}
+{% block footer %}{% endblock %}
+
 {% block title %}Sign Up - SignalNet{% endblock %}
+
 {% block breadcrumbs %}
 <li class="breadcrumb-item active" aria-current="page">Sign Up</li>
 {% endblock %}
+
 {% block content %}
-    <section class="auth-form">
-        <form method="POST" action="{{ url_for('auth.signup') }}">
-            {{ form.hidden_tag() }} <!-- Includes CSRF token and hidden fields -->
-
-            <div class="form-group">
-                {{ form.username.label(class="form-label") }}
-                {{ form.username(class="form-control", id="username") }}
-                {% if form.username.errors %}
-                    <span class="error text-danger">{{ form.username.errors[0] }}</span>
-                {% endif %}
+<section class="signup-page">
+    <div class="form-container">
+        {% if signup_success %}
+            <div class="success-container">
+                <img src="{{ url_for('static', filename='images/your-custom-image.png') }}" alt="Success Image"> <!-- Replace with your image path -->
+                <p>Successfully signed up! Please log in.</p>
+                <button onclick="window.close()">Back to the Page</button>
             </div>
+        {% else %}
+            <h2>Sign Up</h2>
+            <form method="POST" action="{{ url_for('auth.signup') }}" novalidate>
+                {{ form.hidden_tag() }}
 
-            <div class="form-group">
-                {{ form.email.label(class="form-label") }}
-                {{ form.email(class="form-control", id="email") }}
-                {% if form.email.errors %}
-                    <span class="error text-danger">{{ form.email.errors[0] }}</span>
-                {% endif %}
+                <div class="form-group">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", id="email", placeholder="Enter your email") }}
+                    {% if form.email.errors %}
+                        <span class="error">{{ form.email.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", id="password", placeholder="Create a password") }}
+                    {% if form.password.errors %}
+                        <span class="error">{{ form.password.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.country.label(class="form-label") }}
+                    {{ form.country(class="form-control", id="country") }}
+                    {% if form.country.errors %}
+                        <span class="error text-danger">{{ form.country.errors[0] }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-check">
+                    {{ form.tos(class="form-check-input", id="tos") }}
+                    <label class="form-check-label" for="tos">
+                        I agree to the <a href="{{ url_for('main.terms_of_service') }}">Terms of Service</a>. <span class="required">*</span>
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="privacy_policy" name="privacy_policy" required>
+                    <label class="form-check-label" for="privacy_policy">
+                        I agree to the <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>. <span class="required">*</span>
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="cookie_policy" name="cookie_policy" required>
+                    <label class="form-check-label" for="cookie_policy">
+                        I agree to the <a href="{{ url_for('main.cookie_policy') }}">Cookie Policy</a>. <span class="required">*</span>
+                    </label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="communications" name="communications">
+                    <label class="form-check-label" for="communications">
+                        I agree to receive communications from SignalNet.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn">{{ form.submit.label.text }}</button>
+            </form>
+            <hr>
+            <div class="social-signup">
+                <button type="button" class="btn social-button google">
+                    <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google Icon" class="google-icon"> Sign up with Google
+                </button>
             </div>
+        {% endif %}
+    </div>
+</section>
 
-            <div class="form-group">
-                {{ form.password.label(class="form-label") }}
-                {{ form.password(class="form-control", id="password") }}
-                {% if form.password.errors %}
-                    <span class="error text-danger">{{ form.password.errors[0] }}</span>
-                {% endif %}
-            </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Include Select2 CSS and JS libraries -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script>
+    var countries = {{ countries | tojson | safe }};
+    console.log(countries); // Debugging line
 
-            <div class="form-group">
-                {{ form.confirm_password.label(class="form-label") }}
-                {{ form.confirm_password(class="form-control", id="confirm_password") }}
-                {% if form.confirm_password.errors %}
-                    <span class="error text-danger">{{ form.confirm_password.errors[0] }}</span>
-                {% endif %}
-            </div>
+    $(document).ready(function() {
+        function formatCountry(country) {
+            if (!country.id) { return country.text; }
+            var countryData = countries.find(c => c.code === country.id);
+            if (!countryData) { return country.text; }
+            return $('<span><img src="' + countryData.flag + '" class="img-flag" /> ' + countryData.name + '</span>');
+        };
 
-            <div class="form-group">
-                {{ form.country.label(class="form-label") }}
-                {{ form.country(class="form-control", id="country") }}
-                {% if form.country.errors %}
-                    <span class="error text-danger">{{ form.country.errors[0] }}</span>
-                {% endif %}
-            </div>
-
-            <div class="form-group form-check">
-                {{ form.tos(class="form-check-input", id="tos") }}
-                <label class="form-check-label" for="tos">
-                    I have read and agree to the <a href="{{ url_for('main.terms_of_service') }}">Terms of Service</a>.
-                </label> <span style="color: red;">*</span>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="privacy_policy" name="privacy_policy" required>
-                <label class="form-check-label" for="privacy_policy">
-                    I have read and agree to the <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>.
-                </label> <span style="color: red;">*</span>
-            </div>
-
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="cookie_policy" name="cookie_policy" required>
-                <label class="form-check-label" for="cookie_policy">
-                    I have read and agree to the <a href="{{ url_for('main.cookie_policy') }}">Cookie Policy</a>.
-                </label> <span style="color: red;">*</span>
-            </div>
-
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="communications" name="communications">
-                <label class="form-check-label" for="communications">
-                    I agree to receive communications from SignalNet.
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
-        </form>
-    </section>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirm_password');
-        const submitButton = document.querySelector('button[type="submit"]');
-
-        form.addEventListener('submit', function(event) {
-            if (password.value !== confirmPassword.value) {
-                event.preventDefault();
-                alert('Passwords do not match!');
-            }
+        $('#country').select2({
+            templateResult: formatCountry,
+            templateSelection: formatCountry,
+            escapeMarkup: function(markup) { return markup; }  // Let Select2 handle HTML rendering
         });
     });
-    </script>
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+
+    // Inline Validation for Required Fields
+    form.addEventListener('submit', function(event) {
+        let valid = true;
+        const inputs = form.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                input.classList.add('invalid');
+                valid = false;
+            } else {
+                input.classList.remove('invalid');
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+});
+</script>
+
+<script>
+    function addRandomImages() {
+        const images = [
+            'static/images/tether.png',
+            'static/images/btc.png',
+            'static/images/eth.png',
+            'static/images/sol.png',
+            'static/images/chain.png',
+            'static/images/xrp.png',
+            'static/images/avax.png'
+        ]; // Add your image paths here
+
+        const container = document.querySelector('.signup-page');
+        const totalCopies = 3; // Number of times each image should be displayed
+        const allImages = [];
+
+        // Create a list of all image sources repeated 'totalCopies' times
+        images.forEach(image => {
+            for (let i = 0; i < totalCopies; i++) {
+                allImages.push(image);
+            }
+        });
+
+        const imageSize = 100; // Width and height as defined in CSS
+        const minDistance = 100; // Minimum distance between images
+
+        // Calculate the number of columns and rows based on container size
+        const containerWidth = window.innerWidth;
+        const containerHeight = window.innerHeight;
+
+        const cellWidth = imageSize + minDistance;
+        const cellHeight = imageSize + minDistance;
+
+        const cols = Math.floor(containerWidth / cellWidth);
+        const rows = Math.floor(containerHeight / cellHeight);
+
+        const totalCells = cols * rows;
+
+        if (allImages.length > totalCells) {
+            console.error('Not enough grid cells to place all images without overlapping.');
+            return;
+        }
+
+        // Generate grid positions
+        const gridPositions = [];
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const x = col * cellWidth + minDistance / 2;
+                const y = row * cellHeight + minDistance / 2;
+                gridPositions.push({ x, y });
+            }
+        }
+
+        // Shuffle grid positions
+        shuffleArray(gridPositions);
+
+        // Assign images to grid positions
+        allImages.forEach((imgSrc, index) => {
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.className = 'background-image';
+
+            const position = gridPositions[index];
+            if (position) {
+                img.style.left = `${position.x + (Math.random() * (cellWidth - imageSize))}px`;
+                img.style.top = `${position.y + (Math.random() * (cellHeight - imageSize))}px`;
+                img.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(img);
+            }
+        });
+    }
+
+    // Utility function to shuffle an array (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        addRandomImages(); // Call the function to add images after DOM is fully loaded
+    });
+
+    // Optional: Reposition images on window resize to maintain distribution
+    window.addEventListener('resize', function() {
+        // Remove existing images
+        const existingImages = document.querySelectorAll('.background-image');
+        existingImages.forEach(img => img.remove());
+
+        // Re-add images with updated container size
+        addRandomImages();
+    });
+</script>
 {% endblock %}

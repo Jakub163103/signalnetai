@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         /* Primary Color Variables */
         :root {
@@ -23,36 +24,61 @@
 
         /* Header Styles */
         header {
-            background-color: var(--primary-deep-blue);
+            background-color: var(--secondary-light-gray);
             display: flex;
-            flex-direction: column; /* Arrange children vertically */
-            justify-content: center;
-            align-items: center;     /* Center children horizontally */
-            padding: 20px 0;         /* Increased vertical padding for better spacing */
-            position: relative;
+            justify-content: center; /* Center the header content */
+            align-items: center; /* Center items vertically */
+            padding: 10px; /* Reduced padding for the header */
+            border-bottom: 1px solid black;
         }
 
-        /* Header Title Styles */
-        header h1 {
+        .header-content {
+            display: flex;
+            align-items: center; /* Center items vertically */
+            flex-grow: 1; /* Allow the header content to grow */
+        }
+
+        h1 {
             color: var(--secondary-soft-white);
-            font-size: 50px;          /* Adjusted font size */
+            font-size: 40px; /* Adjusted font size */
             font-weight: 500;
-            display: flex;
-            align-items: center;
             margin: 0;
-            margin-bottom: 10px;
+            margin-right: 20px;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center the link horizontally */
+            text-align: center; /* Center the text */
         }
-
-        header h1 a {
+        h1 a {
             text-decoration: none; /* Removes underline from the link */
+            color: black; /* Maintains color consistency */
+            font-size: 40px; /* Consistent font size */
+            font-weight: 500; /* Consistent font weight */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center the link horizontally */
+        }
+        h1 a:hover {
             color: var(--secondary-soft-white);
+            text-decoration: none;
+        }
+        nav {
+            display: flex; /* Use flexbox for the nav */
+            gap: 15px; /* Space between nav items */
         }
 
-        header h1 a:hover,
-        header h1 a:active,
-        header h1 a:focus {
-            text-decoration: none; /* Ensures no underline on hover, active, or focus */
-            color: var(--secondary-soft-white); /* Maintains color consistency */
+        nav a {
+            color: black;
+            text-decoration: none;
+            font-size: 20px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background-color: var(--accent-muted-teal);
+            color: black;
         }
 
         /* Subscription Plan Styles */
@@ -84,9 +110,13 @@
 
         .notification-bell {
             position: relative;
-            color: var(--secondary-soft-white);
+            color: var(--text-dark-charcoal);
             font-size: 20px;
             cursor: pointer;
+        }
+        .notification-bell:hover {
+            opacity: 0.8;
+            color: var(--primary-deep-blue);
         }
 
         .notification-dot {
@@ -101,29 +131,6 @@
 
         .user-icon:hover {
             opacity: 0.8;
-        }
-
-        /* Navbar Styles */
-        nav {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        nav a {
-            color: var(--secondary-soft-white);
-            text-decoration: none;
-            font-size: 20px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        nav a:hover,
-        nav a.active {
-            background-color: var(--accent-muted-teal);
-            color: var(--secondary-soft-white);
         }
 
         /* Flash message styles */
@@ -235,15 +242,6 @@
             top: 25px;
         }
 
-        h1 {
-            font-size: 40px;
-            font-weight: 400;
-            display: flex;
-            align-items: center;
-            margin-top: 30px;
-            margin-bottom: 0px;
-        }
-
         .user-menu {
             position: absolute;
             top: 20px;
@@ -252,34 +250,6 @@
             align-items: center; /* Vertically centers the items */
             gap: 15px; /* Space between the bell and the user icon */
         }
-
-        .user-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            cursor: pointer;
-            border: 2px solid #28a745;
-            transition: opacity 0.3s ease;
-        }
-
-        .notification-bell {
-            position: relative;
-            color: #333;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .notification-dot {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 8px;
-            height: 8px;
-            background-color: red;
-            border-radius: 50%;
-        }
-
         .user-icon:hover {
             opacity: 0.8;
         }
@@ -411,21 +381,17 @@
     <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
+    {% block header %}
     <header>
-        <h1>
-            <a href="/" aria-label="Home">SignalNet</a>
+        <div class="header-content">
+            <h1>
+                <a href="/" aria-label="Home">SignalNet</a>
             {% if user and user.subscription and 'user_logged_in' in session %}
                 <span class="subscription-plan">({{ user.subscription.name }} Plan)</span>
-            {% endif %}
-        </h1>
+                {% endif %}
+            </h1>
         <div class="user-menu">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.notifications') }}" class="notification-bell position-relative" aria-label="Notifications">
-                    <i class="fas fa-bell"></i>
-                    {% if unread_notifications_count > 0 %}
-                        <span class="notification-dot"></span>
-                    {% endif %}
-                </a>
                 <img 
                     src="{{ url_for('static', filename='uploads/' + (current_user.profile_picture if current_user.profile_picture else 'default.png')) }}" 
                     alt="User Icon" 
@@ -437,17 +403,17 @@
                 <div id="dropdown" class="dropdown-content">
                     <a href="{{ url_for('main.profile') }}">Profile</a>
                     <a href="{{ url_for('main.account_settings') }}">Account Settings</a>
+                    <a href="{{ url_for('main.my_purchases') }}">My Purchases</a>
                     <a href="{{ url_for('main.privacy_settings') }}">Privacy Settings</a>
                     <a href="{{ url_for('main.help_center') }}">Help Center</a>
                     {% if current_user.is_admin %}
-                        <a href="{{ url_for('main.admin_send_notification') }}">Admin Notifications</a>
                         <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
                     {% endif %}
                     <a href="{{ url_for('auth.logout') }}">Logout</a>
                 </div>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
-                <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign Up</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="color: var(--secondary-soft-white); text-decoration: none;">Login</a>
+                <a href="{{ url_for('auth.signup') }}" target="_blank" style="color: var(--secondary-soft-white); background-color: var(--accent-muted-teal); text-decoration: none; border: none; border-radius: 5px; padding: 5px 10px; font-size: 16px;">Sign Up</a>
             {% endif %}
         </div>
         <nav>
@@ -456,8 +422,10 @@
             <a href="/metrics" class="{% if request.path == '/markets' %}active{% endif %}" aria-label="Metrics">Metrics</a>
             <a href="/subscribe" class="{% if request.path == '/subscribe' %}active{% endif %}" aria-label="Subscribe">Subscribe</a>
             <a href="/contact" class="{% if request.path == '/contact' %}active{% endif %}" aria-label="Contact">Contact</a>
-        </nav>
+            </nav>
+        </div>
     </header>
+    {% endblock %}
     <main>
         {% block content %}{% endblock %}
     </main>
@@ -501,6 +469,7 @@
 
         // Additional existing scripts...
     </script>
+    {% block footer %}
     <footer>
         <div class="footer-content">
             <div class="footer-section about">
@@ -513,7 +482,7 @@
                     <li><a href="{{ url_for('main.about') }}">About</a></li>
                     <li><a href="{{ url_for('main.services') }}">Services</a></li>
                     <li><a href="{{ url_for('main.subscribe') }}">Subscribe</a></li>
-                    <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                    <li><a href="{{ url_for('main.refund_policy') }}">Refund Policy</a></li>
                     <li><a href="{{ url_for('main.privacy') }}">Privacy Policy</a></li>
                     <li><a href="{{ url_for('main.terms_of_service') }}">Terms of Service</a></li>
                 </ul>
@@ -542,6 +511,7 @@
             &copy; 2023 SignalNet | All Rights Reserved
         </div>
     </footer>
+    {% endblock %}
     <!-- Flash Messages Container -->
     <div class="flash-container">
         {% with messages = get_flashed_messages(with_categories=true) %}

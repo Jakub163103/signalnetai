@@ -5,7 +5,6 @@ from app.extensions import db
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), nullable=False, unique=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
     subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.id'), nullable=True)
@@ -22,21 +21,17 @@ class User(db.Model, UserMixin):
     share_data_with_partners = db.Column(db.Boolean, default=False)
     allow_profile_visibility = db.Column(db.Boolean, default=True)
     
-    # Relationships
-    notifications = db.relationship(
-        'Notification',
-        foreign_keys='Notification.user_id',
-        back_populates='user',
-        lazy='dynamic',
-        cascade='all, delete-orphan'
-    )
-    sent_notifications = db.relationship(
-        'Notification',
-        foreign_keys='Notification.sender_id',
-        back_populates='sender',
-        lazy='dynamic'
-    )
     stripe_subscription_id = db.Column(db.String(255), nullable=True)
+
+    cancellation_feedbacks = db.relationship(
+        'CancellationFeedback',
+        back_populates='user',
+        lazy=True,
+        cascade="all, delete",
+        passive_deletes=True
+    )
+
+    one_time_purchases = db.relationship('OneTimePurchase', back_populates='user', lazy=True)
 
     # Prevent reading the password attribute
     @property
@@ -49,11 +44,15 @@ class User(db.Model, UserMixin):
         self.password_hash = generate_password_hash(password)
 
     # Method to verify password
-    def check_password(self, password):
+    def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    # Alias for verify_password
+    def check_password(self, password):
+        return self.verify_password(password)
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.email}>"
 
     def is_admin_user(self):
         return self.is_admin
@@ -69,39 +68,9 @@ class Subscription(db.Model):
     def __repr__(self):
         return f"<Subscription {self.name}>"
 
-class Notification(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Recipient
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Sender
-    message = db.Column(db.String(500), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    read = db.Column(db.Boolean, default=False)
-
-    # Relationships
-    user = db.relationship(
-        'User',
-        foreign_keys=[user_id],
-        back_populates='notifications'
-    )
-    sender = db.relationship(
-        'User',
-        foreign_keys=[sender_id],
-        back_populates='sent_notifications'
-    )
-
-    def __repr__(self):
-        return f"<Notification {self.id} from User {self.sender_id} to User {self.user_id}>"
-
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    level = db.Column(db.String(50), nullable=False)  # e.g., INFO, WARNING, ERROR
-    message = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    user = db.relationship('User', backref=db.backref('logs', lazy=True))
-
-    def __repr__(self):
-        return f'<Log {self.level}: {self.message[:20]}...>'
+    # Define other fields as necessary
 
 class Setting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -139,9 +108,66 @@ class ContactMessage(db.Model):
 
 class CancellationFeedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False
+    )
     reason = db.Column(db.String(50), nullable=False)
     additional_comments = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship('User', backref=db.backref('cancellation_feedbacks', lazy=True))
+    user = db.relationship('User', back_populates='cancellation_feedbacks')
+
+    def __repr__(self):
+        return f"<CancellationFeedback {self.id} for User {self.user_id}>"
+
+class Model(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    cost_per_signal = db.Column(db.Float, nullable=False)  # Dynamic cost per signal
+
+    one_time_purchases = db.relationship('OneTimePurchase', back_populates='model', lazy=True)
+
+    def __repr__(self):
+        return f"<Model {self.name}>"
+
+class OneTimePlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    base_price = db.Column(db.Float, nullable=False)
+    signals = db.Column(db.Integer, nullable=False)
+
+    purchases = db.relationship('OneTimePurchase', back_populates='plan', lazy=True)
+
+    def __repr__(self):
+        return f"<OneTimePlan {self.name}>"
+
+class OneTimePurchase(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False
+    )
+    plan_id = db.Column(
+        db.Integer,
+        db.ForeignKey('one_time_plan.id'),
+        nullable=False
+    )
+    model_id = db.Column(
+        db.Integer,
+        db.ForeignKey('model.id'),
+        nullable=False
+    )
+    signals_purchased = db.Column(db.Integer, nullable=False)
+    signals_remaining = db.Column(db.Integer, nullable=False)
+    purchase_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', back_populates='one_time_purchases')
+    plan = db.relationship('OneTimePlan', back_populates='purchases')
+    model = db.relationship('Model', back_populates='one_time_purchases')
+
+    def __repr__(self):
+        return f"<OneTimePurchase {self.id} - User {self.user_id} - Plan {self.plan_id} - Model {self.model_id}>"
+

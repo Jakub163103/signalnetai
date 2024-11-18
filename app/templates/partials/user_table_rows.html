@@ -1,6 +1,5 @@
 {% for user in users %}
     <tr>
-        <td data-label="Username">{{ user.username }}</td>
         <td data-label="Email">{{ user.email }}</td>
         <td data-label="Country">{{ user.country }}</td>
         <td data-label="Admin">{{ "Yes" if user.is_admin else "No" }}</td>

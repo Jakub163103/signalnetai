@@ -12,7 +12,7 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     UPLOAD_FOLDER = 'static/uploads'
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=10)
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
     STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
     STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
     BASIC_PRICE_ID = os.getenv('BASIC_PRICE_ID')

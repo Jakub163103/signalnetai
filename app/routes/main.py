@@ -1,15 +1,16 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, current_app, jsonify
 from flask_login import login_required, current_user
 import stripe
-from app.forms import SubscribeForm, ContactForm, UpdateProfileForm, AdminNotificationForm, PrivacySettingsForm, AccountSettingsForm, CancelSubscriptionForm, QuickSignalForm
-from app.models import Subscription, User, Notification, db, ContactMessage, CancellationFeedback
-from app.utils import send_notification
+from app.forms import SubscribeForm, OneTimePurchaseForm, ContactForm, UpdateProfileForm, PrivacySettingsForm, AccountSettingsForm, CancelSubscriptionForm, QuickSignalForm
+from app.models import Subscription, User, OneTimePlan, OneTimePurchase, db, ContactMessage, CancellationFeedback, Model
 from werkzeug.utils import secure_filename
 import os
 from werkzeug.security import generate_password_hash
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from app.signal_generator import generate_signal  # Your signal generation logic
+import json
+from sqlalchemy import desc
 
 main_bp = Blueprint('main', __name__)
 
@@ -56,56 +57,76 @@ def services():
     return render_template('services.html', services=services_list)
 
 @main_bp.route('/services/<slug>')
+@login_required
 def service_detail(slug):
-    if not current_user.is_authenticated:
-        flash('Please log in to access the service details.', 'warning')
-        return redirect(url_for('auth.login'))
-    
-    user = current_user
+    form = QuickSignalForm()
+    services_list = [
+        {
+            'name': 'Quick Signal',
+            'slug': 'quick-signal',
+            'description': 'Our Quick Signal service provides real-time financial market signals to help you make informed decisions swiftly.',
+            'features': ['Real-time updates', 'Comprehensive analysis', 'User-friendly interface']
+        }
+    ]
 
-    # Check if the user has an active subscription
-    if not user.subscription:
-        flash('You need an active subscription to access this service.', 'warning')
+    service = next((s for s in services_list if s['slug'] == slug), None)
+    if not service:
+        flash('Service not found.', 'danger')
+        return redirect(url_for('main.services'))
+
+    has_subscription = current_user.subscription is not None
+    has_one_time_purchases = OneTimePurchase.query.filter_by(user_id=current_user.id).filter(OneTimePurchase.signals_remaining > 0).count() > 0
+
+    if not has_subscription and not has_one_time_purchases:
+        flash('You need an active subscription or a valid one-time purchase to view service details.', 'warning')
         return redirect(url_for('main.subscribe'))
 
-    service_details = {
-        'quick-signal': {
-            'name': 'Quick Signal',
-            'description': 'Our Quick Signal service provides real-time financial market signals to help you make informed decisions swiftly.',
-            'features': [
-                'Real-time data access',
-                'Customizable alerts',
-                'Comprehensive market analysis'
-            ]
-        },
-    }
-
-    service = service_details.get(slug)
-    if not service:
-        return render_template('404.html'), 404
-
-    pairs = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT']
-    prices = {}  # Implement logic to fetch and populate prices
-
-    return render_template('services/quick_signal.html', service=service, pairs=pairs, prices=prices)
+    return render_template('services/quick_signal.html', service=service, has_subscription=has_subscription, has_one_time_purchases=has_one_time_purchases, form=form)
 
 @main_bp.route('/subscribe', methods=['GET', 'POST'])
 @login_required
 def subscribe():
     form = SubscribeForm()
+    one_time_purchase_form = OneTimePurchaseForm()
     subscriptions = Subscription.query.all()
-    stripe_public_key = current_app.config['STRIPE_PUBLIC_KEY']  # Retrieve the publishable key
+    stripe_public_key = current_app.config['STRIPE_PUBLIC_KEY']
+
+    one_time_plans = [
+        {
+            'id': 1,
+            'name': 'Starter Pack',
+            'base_price': 15.00,
+            'signals': 10,
+            'models': Model.query.all()
+        },
+        {
+            'id': 2,
+            'name': 'Growth Pack',
+            'base_price': 60.00,
+            'signals': 50,
+            'models': Model.query.all()
+        },
+        {
+            'id': 3,
+            'name': 'Advanced Pack',
+            'base_price': 120.00,
+            'signals': 100,
+            'models': Model.query.all()
+        },
+        {
+            'id': 4,
+            'name': 'Premium Pack',
+            'base_price': 220.00,
+            'signals': 200,
+            'models': Model.query.all()
+        }
+    ]
 
     if form.validate_on_submit():
         subscription_name = form.subscription.data
-        price_id_map = {
-            'Basic': current_app.config['BASIC_PRICE_ID'],
-            'Pro': current_app.config['PRO_PRICE_ID'],
-            'Professional': current_app.config['PROFESSIONAL_PRICE_ID']
-        }
-        price_id = price_id_map.get(subscription_name)
+        subscription = Subscription.query.filter_by(name=subscription_name).first()
 
-        if not price_id:
+        if not subscription:
             flash('Invalid subscription plan selected.', 'danger')
             return redirect(url_for('main.subscribe'))
 
@@ -113,7 +134,7 @@ def subscribe():
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[{
-                    'price': price_id,
+                    'price': subscription.stripe_price_id,
                     'quantity': 1,
                 }],
                 mode='subscription',
@@ -127,7 +148,14 @@ def subscribe():
             flash(f'An error occurred while creating the checkout session: {str(e)}', 'danger')
             return redirect(url_for('main.subscribe'))
 
-    return render_template('subscribe.html', subscriptions=subscriptions, form=form, stripe_public_key=stripe_public_key)
+    return render_template(
+        'subscribe.html',
+        subscriptions=subscriptions,
+        form=form,
+        one_time_purchase_form=one_time_purchase_form,
+        one_time_plans=one_time_plans,
+        stripe_public_key=stripe_public_key
+    )
 
 @main_bp.route('/payment_success')
 @login_required
@@ -136,47 +164,67 @@ def payment_success():
     if not session_id:
         flash('No session ID provided.', 'danger')
         return redirect(url_for('main.subscribe'))
-    
+
     try:
-        # Retrieve the checkout session from Stripe
-        checkout_session = stripe.checkout.Session.retrieve(session_id)
-        
-        # Extract the subscription plan ID from the session metadata
-        subscription_plan_id = checkout_session.metadata.get('subscription_plan_id')
-        
-        if not subscription_plan_id:
-            flash('Subscription plan ID not found.', 'danger')
-            return redirect(url_for('main.subscribe'))
-        
-        # Retrieve the Stripe Subscription ID
-        stripe_subscription_id = checkout_session.subscription
-        
-        if not stripe_subscription_id:
-            flash('Stripe subscription ID not found.', 'danger')
-            return redirect(url_for('main.subscribe'))
-        
-        # Update the user's subscription in the database
-        current_user.subscription_id = subscription_plan_id
-        current_user.stripe_subscription_id = stripe_subscription_id  # Store Stripe Subscription ID
-        db.session.commit()
-        
-        flash('Your subscription was successful!', 'success')
-        return redirect(url_for('main.success'))  # Redirect to a dashboard or relevant page
+        # Retrieve the session from Stripe
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        # Check if this is a subscription purchase
+        subscription_plan_id = session.metadata.get('subscription_plan_id')
+        if subscription_plan_id:
+            # Update the user's subscription
+            subscription = Subscription.query.get(subscription_plan_id)
+            if subscription:
+                current_user.subscription_id = subscription.id
+                current_user.stripe_subscription_id = session.subscription
+                db.session.commit()
+                flash('Subscription updated successfully!', 'success')
+            else:
+                flash('Invalid subscription plan.', 'danger')
+        else:
+            # Handle one-time purchases as before
+            selected_models_json = session.metadata.get('selected_models', '{}')
+            selected_models = json.loads(selected_models_json)
+
+            one_time_purchases = []
+            for plan_id_str, model_id in selected_models.items():
+                plan = OneTimePlan.query.get(plan_id_str)
+                if not plan:
+                    current_app.logger.error(f"Plan ID {plan_id_str} not found.")
+                    continue
+
+                model = Model.query.get(model_id)
+                if not model:
+                    current_app.logger.error(f"Model ID {model_id} not found.")
+                    continue
+
+                purchase = OneTimePurchase(
+                    user_id=current_user.id,
+                    plan_id=plan.id,
+                    model_id=model.id,
+                    signals_purchased=plan.signals,
+                    signals_remaining=plan.signals
+                )
+                one_time_purchases.append(purchase)
+                db.session.add(purchase)
+
+            if one_time_purchases:
+                db.session.commit()
+                flash('Purchase successful!', 'success')
+            else:
+                flash('No valid purchases were recorded.', 'warning')
+
     except Exception as e:
-        current_app.logger.error(f"Error retrieving Stripe session: {e}")
-        flash(f'Error retrieving Stripe session: {str(e)}', 'danger')
-        return redirect(url_for('main.subscribe'))
+        current_app.logger.error(f"Error processing payment success: {e}")
+        flash('An error occurred while processing your purchase.', 'danger')
+
+    return redirect(url_for('main.profile'))
 
 @main_bp.route('/payment_cancelled')
 @login_required
 def payment_cancelled():
     flash('Your payment was cancelled.', 'info')
     return redirect(url_for('main.subscribe'))
-
-@main_bp.route('/success')
-def success():
-    flash('Subscription successful!', 'success')
-    return redirect(url_for('main.profile'))
 
 @main_bp.route('/dashboard')
 @login_required
@@ -199,63 +247,12 @@ def terms_of_service():
 def cookie_policy():
     return render_template('cookie_policy.html')
 
-@main_bp.route('/notifications', methods=['GET', 'POST'])
-@login_required
-def notifications():
-    notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.timestamp.desc()).all()
-    form = PrivacySettingsForm()
-    return render_template('notifications.html', notifications=notifications, form=form)
-
-@main_bp.route('/mark_notification_read/<int:notification_id>', methods=['POST'])
-@login_required
-def mark_notification_read(notification_id):
-    notification = Notification.query.get_or_404(notification_id)
-    if notification.user_id != current_user.id:
-        flash('Unauthorized action.', 'danger')
-        return redirect(url_for('main.notifications'))
-    
-    notification.read = True
-    db.session.commit()
-    flash('Notification marked as read.', 'success')
-    return redirect(url_for('main.notifications'))
-
-@main_bp.route('/delete_notification/<int:notification_id>', methods=['POST'])
-def delete_notification(notification_id):
-    notification = Notification.query.get_or_404(notification_id)
-    if notification.user_id != current_user.id:
-        flash('Unauthorized action.', 'danger')
-        return redirect(url_for('main.notifications'))
-    
-    db.session.delete(notification)
-    db.session.commit()
-    flash('Notification deleted.', 'success')
-    return redirect(url_for('main.notifications'))
-
-@main_bp.route('/mark_all_read', methods=['POST'])
-@login_required
-def mark_all_read():
-    notifications = Notification.query.filter_by(user_id=current_user.id, read=False).all()
-    for notification in notifications:
-        notification.read = True
-    db.session.commit()
-    flash('All notifications marked as read.', 'success')
-    return redirect(url_for('main.notifications'))
-
-@main_bp.route('/delete_all_notifications', methods=['POST'])
-@login_required
-def delete_all_notifications():
-    notifications = Notification.query.filter_by(user_id=current_user.id).all()
-    for notification in notifications:
-        db.session.delete(notification)
-    db.session.commit()
-    flash('All notifications deleted.', 'success')
-    return redirect(url_for('main.notifications'))
-
 @main_bp.route('/profile')
 @login_required
 def profile():
     form = UpdateProfileForm()
-    return render_template('profile.html', form=form)
+    one_time_purchases = OneTimePurchase.query.filter_by(user_id=current_user.id).all()
+    return render_template('profile.html', form=form, one_time_purchases=one_time_purchases)
 
 @main_bp.route('/account_settings', methods=['GET', 'POST'])
 @login_required
@@ -333,34 +330,11 @@ def upload_file():
         flash('Profile picture updated successfully!', 'success')
         return redirect(url_for('main.profile'))
     
-@main_bp.route('/admin/send_notification', methods=['GET', 'POST'])
-@login_required
-def admin_send_notification():
-    form = AdminNotificationForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            topic = form.topic.data
-            message = form.message.data
-            if not message or not topic:
-                flash('Both topic and message cannot be empty', 'danger')
-                return redirect(url_for('main.admin_send_notification'))
-
-            # Assuming you want to send the notification to all users
-            users = User.query.all()
-            for user in users:
-                full_message = f"{topic}: {message}"
-                send_notification(user.id, current_user.id, full_message)
-
-            flash('Notifications sent successfully', 'success')
-            return redirect(url_for('main.admin_send_notification'))
-    return render_template('admin_send_notification.html', form=form)
-
 @main_bp.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
     form = UpdateProfileForm()
     if form.validate_on_submit():
-        current_user.username = form.username.data
         current_user.email = form.email.data
         if form.password.data:
             current_user.password = form.password.data  # Utilizes the password setter
@@ -385,23 +359,17 @@ def create_checkout_session():
     if not subscription_name:
         return jsonify({'error': 'No subscription plan provided.'}), 400
 
-    # Map subscription names to their respective Stripe Price IDs
-    price_id_map = {
-        'Basic': current_app.config['BASIC_PRICE_ID'],
-        'Pro': current_app.config['PRO_PRICE_ID'],
-        'Professional': current_app.config['PROFESSIONAL_PRICE_ID']
-    }
+    # Query the Subscription model to get the plan details
+    subscription = Subscription.query.filter_by(name=subscription_name).first()
 
-    price_id = price_id_map.get(subscription_name)
-
-    if not price_id:
+    if not subscription:
         return jsonify({'error': 'Invalid subscription plan selected.'}), 400
 
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
-                'price': price_id,
+                'price': subscription.stripe_price_id,
                 'quantity': 1,
             }],
             mode='subscription',
@@ -410,10 +378,9 @@ def create_checkout_session():
             customer_email=current_user.email,
             client_reference_id=str(current_user.id),
             metadata={
-                'subscription_plan_id': Subscription.query.filter_by(name=subscription_name).first().id
+                'subscription_plan_id': subscription.id
             }
         )
-        # Optionally, store the Stripe Checkout Session ID if needed
         current_user.stripe_checkout_session_id = checkout_session.id
         db.session.commit()
         return jsonify({'id': checkout_session.id, 'url': checkout_session.url})
@@ -467,52 +434,164 @@ def cancel_subscription_feedback():
 
     return render_template('cancel_subscription.html', form=form)
 
-@main_bp.route('/quick_signal', methods=['GET', 'POST'], endpoint='generate_signal')
-@login_required
-def generate_signal_view():
-    form = QuickSignalForm()
-    signal = None
-    if form.validate_on_submit():
-        cryptocurrency = form.cryptocurrency.data
-        timeframe = form.timeframe.data
-        try:
-            # Call your signal generation function
-            signal_result = generate_signal(cryptocurrency, timeframe)
-            
-            # Structure the signal data to pass to the template
-            signal = {
-                'cryptocurrency': cryptocurrency.capitalize(),
-                'result': signal_result
-            }
-            flash('Signal generated successfully!', 'success')
-        except Exception as e:
-            # Log the error and inform the user
-            current_app.logger.error(f"Error generating signal: {e}")
-            flash('An error occurred while generating the signal. Please try again.', 'danger')
-            signal = None
-    return render_template('quick_signal.html', form=form, signal=signal)
-
-@main_bp.route('/services/quick-signal', methods=['GET', 'POST'])
+@main_bp.route('/quick_signal', methods=['GET', 'POST'])
 @login_required
 def quick_signal():
+    # Retrieve the user's subscription
+    subscription = Subscription.query.get(current_user.subscription_id) if current_user.subscription_id else None
+    current_app.logger.info(f"User {current_user.id} subscription: {subscription}")
+
+    # Retrieve the user's one-time purchases
+    one_time_purchases = OneTimePurchase.query.filter_by(user_id=current_user.id).all()
+    current_app.logger.info(f"User {current_user.id} one-time purchases: {one_time_purchases}")
+
+    # Determine if the user has access
+    has_access = subscription is not None or any(purchase.signals_remaining > 0 for purchase in one_time_purchases)
+    current_app.logger.info(f"User {current_user.id} has access: {has_access}")
+
+    if not has_access:
+        flash('You need a subscription or a one-time purchase to access this service.', 'warning')
+        return redirect(url_for('main.subscribe'))
+
     form = QuickSignalForm()
     signal = None
-    if form.validate_on_submit():
-        cryptocurrency = form.cryptocurrency.data
-        timeframe = form.timeframe.data
-        try:
-            # Replace this with your actual signal generation logic
-            signal_result = generate_signal(cryptocurrency, timeframe)
 
-            # Structure the signal data to pass to the template
-            signal = {
-                'cryptocurrency': cryptocurrency.capitalize(),
-                'result': signal_result
+    if form.validate_on_submit():
+        selected_pack_id = request.form.get('selected_pack_id')
+        if selected_pack_id:
+            selected_pack = OneTimePurchase.query.get(selected_pack_id)
+            if selected_pack and selected_pack.signals_remaining > 0:
+                # Use the selected pack for generating signals
+                signal = generate_signal(form.cryptocurrency.data, form.timeframe.data, pack=selected_pack)
+                # Optionally, decrement the signals_remaining
+                selected_pack.signals_remaining -= 1
+                db.session.commit()
+            else:
+                flash('Selected pack is invalid or has no remaining signals.', 'danger')
+                return redirect(url_for('main.quick_signal'))
+        else:
+            # Handle cases without a specific pack selection, possibly using subscription
+            signal = generate_signal(form.cryptocurrency.data, form.timeframe.data)
+
+    return render_template(
+        'services/quick_signal.html',
+        form=form,
+        signal=signal,
+        subscription=subscription,
+        one_time_purchases=one_time_purchases
+    )
+
+@main_bp.route('/technology')
+@login_required
+def technology():
+    return render_template('technology.html')
+
+@main_bp.route('/refund-policy')
+def refund_policy():
+    return render_template('refund_policy.html')
+
+@main_bp.route('/buy-signals', methods=['POST'])
+@login_required
+def buy_signals():
+    data = request.get_json()
+    selected_models = data.get('selected_models')  # Dictionary of plan_id: model_id
+
+    if not selected_models:
+        return jsonify({'error': 'Missing required data.'}), 400
+
+    try:
+        # Fetch all one-time purchase plans from the database
+        one_time_plans = OneTimePlan.query.all()
+        plan_map = {str(plan.id): plan for plan in one_time_plans}
+
+        line_items = []
+        for plan_id_str, model_id in selected_models.items():
+            plan = plan_map.get(plan_id_str)
+            if not plan:
+                return jsonify({'error': f"Plan with ID {plan_id_str} does not exist."}), 400
+
+            model = Model.query.get(model_id)
+            if not model:
+                return jsonify({'error': f"Model with ID {model_id} does not exist."}), 400
+
+            # Calculate the additional cost based on the number of signals
+            additional_cost = plan.signals * model.cost_per_signal
+            final_price = plan.base_price + additional_cost
+
+            line_items.append({
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': f"One-Time Purchase: {plan.signals} Signals - {model.name} Model",
+                    },
+                    'unit_amount': int(final_price * 100),  # Convert to cents
+                },
+                'quantity': 1,
+            })
+
+        if not line_items:
+            return jsonify({'error': 'No valid one-time purchase plans selected.'}), 400
+
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=url_for('main.payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('main.subscribe', _external=True),
+            metadata={
+                'user_id': current_user.id,
+                'selected_models': json.dumps(selected_models)  # Store as JSON string
             }
-            flash('Signal generated successfully!', 'success')
-        except Exception as e:
-            # Log the error and inform the user
-            current_app.logger.error(f"Error generating signal: {e}")
-            flash('An error occurred while generating the signal. Please try again.', 'danger')
-            signal = None
-    return render_template('services/quick_signal.html', form=form, signal=signal)
+        )
+        return jsonify({'url': checkout_session.url})
+    except Exception as e:
+        current_app.logger.error(f"Stripe Checkout Session creation failed: {e}")
+        return jsonify({'error': 'An error occurred while creating the checkout session.'}), 500
+
+@main_bp.route('/my_purchases')
+@login_required
+def my_purchases():
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = 10  # Number of purchases per page
+
+        purchases_pagination = OneTimePurchase.query.filter_by(user_id=current_user.id)\
+            .order_by(OneTimePurchase.purchase_date.desc())\
+            .paginate(page=page, per_page=per_page, error_out=False)
+
+        purchases = purchases_pagination.items
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving purchases for user {current_user.id}: {e}")
+        flash('An error occurred while retrieving your purchases.', 'danger')
+        return redirect(url_for('main.dashboard'))  # Redirect to a relevant page
+
+    return render_template('my_purchases.html', purchases=purchases, pagination=purchases_pagination)
+
+@main_bp.route('/api/one_time_purchases')
+@login_required
+def api_one_time_purchases():
+    one_time_purchases = OneTimePurchase.query.filter_by(user_id=current_user.id).all()
+    purchases_data = [
+        {
+            'id': purchase.id,
+            'plan_name': purchase.plan.name,
+            'signals_purchased': purchase.signals_purchased,
+            'signals_remaining': purchase.signals_remaining
+        }
+        for purchase in one_time_purchases
+    ]
+    return jsonify(purchases_data)
+
+@main_bp.route('/api/monthly_plan')
+@login_required
+def api_monthly_plan():
+    subscription = current_user.subscription
+    if subscription:
+        subscription_data = {
+            'plan_name': subscription.name
+        }
+    else:
+        subscription_data = {
+            'plan_name': None
+        }
+    return jsonify(subscription_data)

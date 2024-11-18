@@ -1,4 +1,4 @@
-from app.models import db, Notification
+from app.models import db
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
 from flask_mail import Message
@@ -6,17 +6,6 @@ from app import mail
 from flask_login import current_user
 import os
 import json
-
-def send_notification(recipient_id, sender_id, message):
-    print(f"Attempting to send notification from {sender_id} to {recipient_id}.")  # Debugging
-    notification = Notification(user_id=recipient_id, sender_id=sender_id, message=message)
-    db.session.add(notification)
-    try:
-        db.session.commit()
-        print(f"Notification sent from user {sender_id} to user {recipient_id}: {message}")
-    except Exception as e:
-        db.session.rollback()
-        print(f"Failed to send notification: {e}") 
 
 def generate_reset_token(user_id, expires_sec=1800):
     s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
@@ -33,11 +22,6 @@ If you did not make this request, simply ignore this email.
 '''
     mail.send(msg) 
 
-def get_unread_notifications_count():
-    if current_user.is_authenticated:
-        from app.models import Notification  # Delayed import
-        return Notification.query.filter_by(user_id=current_user.id, read=False).count()
-    return 0 
 
 def load_countries():
     """

@@ -11,10 +11,10 @@
             {{ form.hidden_tag() }} <!-- This includes the CSRF token -->
 
             <div class="form-group">
-                {{ form.username.label(class="form-label") }}
-                {{ form.username(class="form-control", id="username", placeholder="Enter your username") }}
-                {% if form.username.errors %}
-                    <span class="error">{{ form.username.errors[0] }}</span>
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", id="email", placeholder="Enter your email") }}
+                {% if form.email.errors %}
+                    <span class="error">{{ form.email.errors[0] }}</span>
                 {% endif %}
             </div>
 

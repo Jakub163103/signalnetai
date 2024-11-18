@@ -53,15 +53,13 @@ def create_app(config_class=DevelopmentConfig):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    @app.context_processor
-    def inject_unread_notifications_count():
-        from app.utils import get_unread_notifications_count
-        return dict(unread_notifications_count=get_unread_notifications_count())
-
     # Register the custom filter
     app.jinja_env.filters['nl2br'] = nl2br
 
     # Set Stripe API key
     stripe.api_key = app.config['STRIPE_SECRET_KEY']
+
+    # Ensure SECRET_KEY is set to a strong, unique value
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'cfvygbhjgvfctvghbjn')
 
     return app

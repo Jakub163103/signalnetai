@@ -106,10 +106,82 @@
                 font-size: 14px;
             }
         }
+
+        .usage-selection {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .usage-option {
+            width: 150px;
+            height: 100px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .usage-option.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .user-packs {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-radius: 8px;
+        }
+
+        .user-packs h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .user-packs ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .user-packs li {
+            margin-bottom: 5px;
+            color: #555;
+        }
     </style>
 
     <h2>Generate a Quick Signal</h2>
     <p>Get instant trading signals for your chosen cryptocurrency.</p>
+
+    <div class="usage-selection">
+        <div id="monthly-plan" class="usage-option {% if not subscription %}disabled{% endif %}" 
+             onclick="selectOption('My Monthly Plan', '{{ subscription.name if subscription else '' }}')" 
+             style="{% if not subscription %}pointer-events: none; opacity: 0.5;{% endif %}">
+            My Monthly Plan
+        </div>
+        <div id="signal-pack" class="usage-option {% if not one_time_purchases %}disabled{% endif %}" 
+             onclick="selectOption('My Signal Pack')" 
+             style="{% if not one_time_purchases %}pointer-events: none; opacity: 0.5;{% endif %}">
+            My Signal Pack
+        </div>
+    </div>
+    <p id="selected-option" style="text-align: center; margin-top: 20px;"></p>
+
+    <div id="user-packs" class="user-packs" style="display: none;">
+        <h3>Your Current Signal Packs:</h3>
+        <div id="user-packs-content">
+            <!-- Content will be populated here -->
+        </div>
+    </div>
+    <div id="packs-loading" style="display: none; text-align: center;">
+        <p>Loading your signal packs...</p>
+    </div>
+
     <form method="POST" action="{{ url_for('main.quick_signal') }}" class="quick-signal-form">
         {{ form.hidden_tag() }}
         <div class="form-group">
@@ -131,5 +203,146 @@
         <p>{{ signal.result }}</p>
     </div>
     {% endif %}
+    
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading indicator for signal packs
+    document.getElementById('packs-loading').style.display = 'block';
+
+    // Initial fetch to determine if "My Signal Pack" should be enabled
+    fetch('/api/one_time_purchases')
+        .then(response => response.json())
+        .then(data => {
+            const signalPackOption = document.getElementById('signal-pack');
+
+            if (data.length > 0) {
+                signalPackOption.classList.remove('disabled');
+                signalPackOption.style.pointerEvents = 'auto';
+                signalPackOption.style.opacity = '1';
+                signalPackOption.setAttribute('data-plan-name', 'My Signal Pack');
+            } else {
+                signalPackOption.classList.add('disabled');
+                signalPackOption.style.pointerEvents = 'none';
+                signalPackOption.style.opacity = '0.5';
+            }
+
+            // Hide the initial loading indicator
+            document.getElementById('packs-loading').style.display = 'none';
+        })
+        .catch(error => {
+            document.getElementById('packs-loading').style.display = 'none';
+            console.error('Error fetching one-time purchases:', error);
+        });
+
+    // Fetch monthly plan
+    fetch('/api/monthly_plan')
+        .then(response => response.json())
+        .then(data => {
+            const monthlyPlanOption = document.getElementById('monthly-plan');
+            if (data && data.plan_name) {
+                monthlyPlanOption.classList.remove('disabled');
+                monthlyPlanOption.style.pointerEvents = 'auto';
+                monthlyPlanOption.style.opacity = '1';
+                monthlyPlanOption.setAttribute('data-plan-name', data.plan_name);
+                monthlyPlanOption.setAttribute('onclick', `selectOption('My Monthly Plan', '${data.plan_name}')`);
+            } else {
+                monthlyPlanOption.classList.add('disabled');
+                monthlyPlanOption.style.pointerEvents = 'none';
+                monthlyPlanOption.style.opacity = '0.5';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching monthly plan:', error);
+        });
+});
+
+function selectOption(option, planName = '') {
+    const selectedOptionElement = document.getElementById('selected-option');
+    selectedOptionElement.textContent = `Selected: ${planName || option}`;
+
+    const userPacksSection = document.getElementById('user-packs');
+    if (option === 'My Signal Pack') {
+        // Show loading indicator
+        document.getElementById('packs-loading').style.display = 'block';
+        userPacksSection.style.display = 'block';
+
+        // Fetch and populate one-time purchases
+        fetch('/api/one_time_purchases')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('packs-loading').style.display = 'none';
+                const userPacksContent = document.getElementById('user-packs-content');
+                userPacksContent.innerHTML = ''; // Clear previous content
+
+                if (data.length > 0) {
+                    const form = document.createElement('form');
+                    form.id = 'select-purchase-form';
+
+                    data.forEach(purchase => {
+                        const div = document.createElement('div');
+                        div.classList.add('form-check');
+
+                        const input = document.createElement('input');
+                        input.classList.add('form-check-input');
+                        input.type = 'radio';
+                        input.name = 'selected_pack';
+                        input.id = `pack${purchase.id}`;
+                        input.value = purchase.id;
+
+                        const label = document.createElement('label');
+                        label.classList.add('form-check-label');
+                        label.htmlFor = `pack${purchase.id}`;
+                        label.innerHTML = `<strong>${purchase.plan_name}</strong> - ${purchase.signals_purchased} Signals (Remaining: ${purchase.signals_remaining})`;
+
+                        div.appendChild(input);
+                        div.appendChild(label);
+                        form.appendChild(div);
+                    });
+
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.classList.add('btn-submit', 'mt-3');
+                    button.onclick = useSelectedPack;
+                    button.textContent = 'Use Selected Pack';
+
+                    form.appendChild(button);
+                    userPacksContent.appendChild(form);
+                } else {
+                    userPacksContent.innerHTML = '<p>You have no signal packs. Consider purchasing one!</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('packs-loading').style.display = 'none';
+                console.error('Error fetching one-time purchases:', error);
+                const userPacksContent = document.getElementById('user-packs-content');
+                userPacksContent.innerHTML = '<p>An error occurred while loading your signal packs.</p>';
+            });
+    } else {
+        userPacksSection.style.display = 'none';
+    }
+}
+
+function useSelectedPack() {
+    const selectedPack = document.querySelector('input[name="selected_pack"]:checked');
+    if (selectedPack) {
+        const packId = selectedPack.value;
+        // Handle the selected pack ID as needed
+        const form = document.querySelector('.quick-signal-form');
+
+        // Create a hidden input for the selected_pack_id
+        const chosenPackInput = document.createElement('input');
+        chosenPackInput.type = 'hidden';
+        chosenPackInput.name = 'selected_pack_id';
+        chosenPackInput.value = packId;
+        form.appendChild(chosenPackInput);
+
+        // Submit the form
+        form.submit();
+    } else {
+        alert('Please select a signal pack to use.');
+    }
+}
+</script>
 {% endblock %}

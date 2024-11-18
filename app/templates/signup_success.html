@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup Successful</title>
+</head>
+<body>
+    <script>
+        // Ensure that window.opener exists to avoid errors
+        if (window.opener && !window.opener.closed) {
+            // Redirect the original window to the login page
+            window.opener.location.href = "{{ url_for('auth.login') }}";
+        }
+        // Close the current signup window
+        window.close();
+    </script>
+    <noscript>
+        <p>JavaScript is required to complete this action. Please enable JavaScript and try again.</p>
+    </noscript>
+</body>
+</html>

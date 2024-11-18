@@ -21,14 +21,11 @@
             </form>
         </div>
         <div class="user-details">
-            <p><strong>Username:</strong> {{ current_user.username }}</p>
             <p><strong>Email:</strong> {{ current_user.email }}</p>
             <p><strong>Subscription Plan:</strong> {{ current_user.subscription.name if current_user.subscription else 'None' }}</p>
             <p><strong>Signals Used Today:</strong> 
-                {{ current_user.signals_used if current_user.signals_used is not none else 0 }}/
-                {% if current_user.subscription and current_user.subscription.name == 'Professional' %}
-                    &infin;
-                {% elif current_user.subscription %}
+                {{ current_user.signals_used if current_user.signals_used is not none else 0 }} / 
+                {% if current_user.subscription %}
                     {{ current_user.subscription.signals_per_day }}
                 {% else %}
                     0

@@ -139,13 +139,17 @@
                 <div class="service-details">
                     <h2>{{ service.name }}</h2>
                     <p>{{ service.description }}</p>
-                    <a href="{{ url_for('main.service_detail', slug=service.slug) }}" class="service-link">Learn More</a>
+                    {% if current_user.is_authenticated and current_user.subscription or current_user.one_time_purchases %}
+                        <a href="{{ url_for('main.service_detail', slug=service.slug) }}" class="service-link">Learn More</a>
+                    {% else %}
+                        <a href="{{ url_for('main.subscribe') }}" class="service-link" title="Subscribe to learn more">Learn More</a>
+                    {% endif %}
                     <button class="view-more-btn" onclick="toggleViewMore(this)" aria-expanded="false" aria-controls="expandable-content-{{ service.id }}">
                         View More <span class="caret">▼</span>
                     </button>
                     <div class="expandable-content" id="expandable-content-{{ service.id }}">
                         <div class="video-container">
-                            <iframe src="https://www.youtube.com/embed/ao8Qtbu7t5c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube.com/watch?v=LoQZpaVFyW8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>
@@ -171,7 +175,7 @@
                 expandableContent.classList.add('active');
                 serviceDetails.classList.add('active');
                 button.innerHTML = 'View Less <span class="caret">▼</span>';
-                button.setAttribute('aria-expanded', 'true');
+                button.setAttribute('aria-expanded', 'trsue');
                 button.classList.add('active');
             }
         }
